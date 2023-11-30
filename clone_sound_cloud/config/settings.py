@@ -27,9 +27,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # additional
     'rest_framework',
     'drf_yasg',
 
+    # my app
     'oauth',
 ]
 
