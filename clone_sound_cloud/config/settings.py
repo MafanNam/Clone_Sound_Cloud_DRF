@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     # my app
     'oauth',
+    'audio_library',
 ]
 
 MIDDLEWARE = [
@@ -159,9 +160,9 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": False,
 }
 
-OAUTH2_PROVIDER = {
-    'ACCESS_TOKEN_EXPIRE_SECONDS': 604800,  # 7 days
-}
+# OAUTH2_PROVIDER = {
+#     'ACCESS_TOKEN_EXPIRE_SECONDS': 604800,  # 7 days
+# }
 
 DJOSER = {
     'LOGIN_FIELD': 'email',
