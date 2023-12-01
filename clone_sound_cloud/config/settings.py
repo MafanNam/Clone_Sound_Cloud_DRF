@@ -146,7 +146,7 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.spotify.SpotifyOAuth2',
 
-    'drf_social_oauth2.backends.DjangoOAuth2',
+    # 'drf_social_oauth2.backends.DjangoOAuth2',
 
     'django.contrib.auth.backends.ModelBackend',
 )

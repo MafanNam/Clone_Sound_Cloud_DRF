@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from oauth.models import UserProfile
+from oauth.models import UserProfile, SocialLink
 
 from djoser.serializers import UserCreateSerializer
 from django.contrib.auth import get_user_model
@@ -12,7 +12,24 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         fields = ('id', 'email', 'first_name', 'last_name', 'password')
 
 
+class SocialLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SocialLink
+        fields = ('id', 'link',)
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    user = CustomUserCreateSerializer(many=False)
+    social_links = SocialLinkSerializer(many=True)
+
     class Meta:
         model = UserProfile
-        fields = ('avatar', 'country', 'city', 'bio', 'display_name',)
+        fields = ('id', 'user', 'avatar', 'country', 'city', 'bio', 'display_name', 'social_links',)
+
+
+
+
+
+
+
+
