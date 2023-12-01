@@ -8,7 +8,7 @@ from base.services import get_path_upload_avatar, validate_size_image
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email,  password=None, **kwargs):
+    def create_user(self, email, password=None, **kwargs):
         if not email:
             raise ValueError("Users must have an email address")
         email = self.normalize_email(email)
@@ -17,7 +17,7 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, email,  password=None, **kwargs):
+    def create_superuser(self, email, password=None, **kwargs):
         kwargs.setdefault('is_active', True)
         kwargs.setdefault('is_staff', True)
         kwargs.setdefault('is_superuser', True)
@@ -56,7 +56,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class UserProfile(models.Model):
     """Model user on platform"""
-    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='user_profile')
+    user = models.OneToOneField(
+        get_user_model(), on_delete=models.CASCADE,
+        related_name='user_profile')
     join_date = models.DateTimeField(auto_now_add=True)
     country = models.CharField(max_length=30, blank=True, null=True)
     city = models.CharField(max_length=30, blank=True, null=True)
@@ -74,8 +76,10 @@ class UserProfile(models.Model):
 
 class Follower(models.Model):
     """Model Follower"""
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='owner')
-    subscriber = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='subscribers')
+    user = models.ForeignKey(
+        UserProfile, on_delete=models.CASCADE, related_name='owner')
+    subscriber = models.ForeignKey(
+        UserProfile, on_delete=models.CASCADE, related_name='subscribers')
 
     def __str__(self):
         return f"{self.subscriber} follower on {self.user}"
@@ -83,11 +87,9 @@ class Follower(models.Model):
 
 class SocialLink(models.Model):
     """Model link in social user"""
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='social_links')
+    user = models.ForeignKey(
+        UserProfile, on_delete=models.CASCADE, related_name='social_links')
     link = models.URLField(max_length=100)
 
     def __str__(self):
         return f"{self.user}"
-
-
-

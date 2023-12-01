@@ -6,5 +6,4 @@ class OauthConfig(AppConfig):
     name = 'oauth'
 
     def ready(self):
-        import oauth.schema
         import oauth.api.signals
