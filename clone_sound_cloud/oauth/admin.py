@@ -35,8 +35,8 @@ class UserAdmin(UserAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'display_name', 'join_date',)
-    list_display_links = ('id',)
+    list_display = ('id', 'user', 'display_name', 'join_date',)
+    list_display_links = ('id', 'user',)
 
 
 @admin.register(SocialLink)

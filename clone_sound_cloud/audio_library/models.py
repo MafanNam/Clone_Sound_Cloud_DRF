@@ -15,6 +15,9 @@ class License(models.Model):
         get_user_model(), on_delete=models.CASCADE, related_name='licenses')
     text = models.TextField(max_length=1000)
 
+    def __str__(self):
+        return f"License-{self.id}"
+
 
 class Genre(models.Model):
     """Model of genre audio"""
