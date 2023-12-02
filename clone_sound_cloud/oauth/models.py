@@ -77,9 +77,9 @@ class UserProfile(models.Model):
 class Follower(models.Model):
     """Model Follower"""
     user = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, related_name='owner')
+        get_user_model(), on_delete=models.CASCADE, related_name='owner')
     subscriber = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, related_name='subscribers')
+        get_user_model(), on_delete=models.CASCADE, related_name='subscribers')
 
     def __str__(self):
         return f"{self.subscriber} follower on {self.user}"
@@ -88,7 +88,7 @@ class Follower(models.Model):
 class SocialLink(models.Model):
     """Model link in social user"""
     user = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, related_name='social_links')
+        get_user_model(), on_delete=models.CASCADE, related_name='social_links')
     link = models.URLField(max_length=100)
 
     def __str__(self):

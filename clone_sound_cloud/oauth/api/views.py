@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.shortcuts import render
 from rest_framework import viewsets, parsers, permissions
 
@@ -24,8 +25,8 @@ class UserProfileView(viewsets.ModelViewSet):
 
 class AuthorView(viewsets.ReadOnlyModelViewSet):
     """List authors"""
-    queryset = UserProfile.objects.all().prefetch_related('social_links')
-    serializer_class = serializers.UserProfileSerializer
+    queryset = get_user_model().objects.all().prefetch_related('social_links')
+    serializer_class = serializers.AuthorSerializer
 
 
 class SocialLinkView(viewsets.ModelViewSet):

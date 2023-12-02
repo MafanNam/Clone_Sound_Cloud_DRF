@@ -1,17 +1,18 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import FileExtensionValidator
 from django.db import models
 
 from base.services import (
     get_path_upload_album, validate_size_image,
-    validate_size_audio, get_path_upload_track, get_path_upload_playlist
+    validate_size_audio, get_path_upload_track,
+    get_path_upload_playlist,
 )
-from oauth.models import UserProfile
 
 
 class License(models.Model):
     """Model licence audio user"""
     user = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, related_name='licenses')
+        get_user_model(), on_delete=models.CASCADE, related_name='licenses')
     text = models.TextField(max_length=1000)
 
 
@@ -26,7 +27,7 @@ class Genre(models.Model):
 class Album(models.Model):
     """Model album for audio"""
     user = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, related_name='albums')
+        get_user_model(), on_delete=models.CASCADE, related_name='albums')
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=1000)
     private = models.BooleanField(default=False)
@@ -40,7 +41,7 @@ class Album(models.Model):
 class Track(models.Model):
     """Model track"""
     user = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, related_name='tracks')
+        get_user_model(), on_delete=models.CASCADE, related_name='tracks')
     title = models.CharField(max_length=100)
     license = models.ForeignKey(
         License, on_delete=models.PROTECT, related_name='license_tracks')
@@ -59,7 +60,7 @@ class Track(models.Model):
     download = models.PositiveIntegerField(default=0)
     likes_count = models.PositiveIntegerField(default=0)
     user_of_likes = models.ManyToManyField(
-        UserProfile, related_name='likes_of_tracks')
+        get_user_model(), related_name='likes_of_tracks')
 
     def __str__(self):
         return f"{self.user} - {self.title}"
@@ -68,7 +69,7 @@ class Track(models.Model):
 class Comment(models.Model):
     """Model comment for track"""
     user = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, related_name='comments')
+        get_user_model(), on_delete=models.CASCADE, related_name='comments')
     track = models.ForeignKey(
         Track, on_delete=models.CASCADE, related_name='track_comments')
     text = models.TextField(max_length=1000)
@@ -78,7 +79,7 @@ class Comment(models.Model):
 class Playlist(models.Model):
     """Model playlist user"""
     user = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, related_name='playlists')
+        get_user_model(), on_delete=models.CASCADE, related_name='playlists')
     title = models.CharField(max_length=50)
     tracks = models.ManyToManyField(Track, related_name='track_playlists')
     cover = models.ImageField(

@@ -6,6 +6,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api/', include('oauth.api.urls')),
+    path('api/audio/', include('audio_library.api.urls')),
 
     path('api/social/', include('social_django.urls')),
 

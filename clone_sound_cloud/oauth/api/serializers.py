@@ -19,10 +19,17 @@ class SocialLinkSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    user = CustomUserCreateSerializer(many=False)
+    class Meta:
+        model = UserProfile
+        fields = ('id', 'avatar', 'country',
+                  'city', 'bio', 'display_name',)
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+    user_profile = UserProfileSerializer(many=False)
     social_links = SocialLinkSerializer(many=True)
 
     class Meta:
-        model = UserProfile
-        fields = ('id', 'user', 'avatar', 'country',
-                  'city', 'bio', 'display_name', 'social_links',)
+        model = get_user_model()
+        fields = ('id',  'email', 'first_name', 'last_name',
+                  'user_profile', 'social_links',)
