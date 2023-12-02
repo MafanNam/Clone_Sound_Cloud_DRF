@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-
 from audio_library import models
 from base.services import delete_old_file
 
@@ -64,8 +63,3 @@ class CreatePlayListSerializer(BaseSerializer):
 
 class PlayListSerializer(CreatePlayListSerializer):
     tracks = AuthorTrackSerializer(many=True, read_only=True)
-
-
-
-
-

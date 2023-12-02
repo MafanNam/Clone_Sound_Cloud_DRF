@@ -51,7 +51,8 @@ class PublicAlbumView(generics.ListAPIView):
     serializer_class = serializers.AlbumSerializer
 
     def get_queryset(self):
-        return models.Album.objects.filter(user__id=self.kwargs.get('pk'), private=False)
+        return models.Album.objects.filter(user__id=self.kwargs.get('pk'),
+                                           private=False)
 
 
 class TrackView(MixedSerializer, viewsets.ModelViewSet):
@@ -120,7 +121,8 @@ class StreamingFileView(views.APIView):
         self.track = get_object_or_404(models.Track, id=pk)
         if os.path.exists(self.track.file.path):
             self.set_play()
-            return FileResponse(open(self.track.file.path, 'rb'), filename=self.track.file.name)
+            return FileResponse(open(self.track.file.path, 'rb'),
+                                filename=self.track.file.name)
         else:
             return Http404
 
