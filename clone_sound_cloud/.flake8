@@ -7,3 +7,4 @@ exclude =
     settings.py,
     apps.py,
     tests
+max-line-length=100

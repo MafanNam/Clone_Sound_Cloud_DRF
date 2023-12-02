@@ -137,6 +137,25 @@ class StreamingFileView(views.APIView):
         self.track.save()
 
     def get(self, request, pk):
+        self.track = get_object_or_404(models.Track, id=pk, private=False)
+        if os.path.exists(self.track.file.path):
+            self.set_play()
+            return FileResponse(open(self.track.file.path, 'rb'),
+                                filename=self.track.file.name)
+        else:
+            return Http404
+
+
+class StreamingFileAuthorView(views.APIView):
+    """Listen track user"""
+    serializer_class = None
+    permission_classes = [IsAuthor]
+
+    def set_play(self):
+        self.track.plays_count += 1
+        self.track.save()
+
+    def get(self, request, pk):
         self.track = get_object_or_404(models.Track, id=pk)
         if os.path.exists(self.track.file.path):
             self.set_play()
@@ -155,7 +174,7 @@ class DownloadTrackView(views.APIView):
         self.track.save()
 
     def get(self, request, pk):
-        self.track = get_object_or_404(models.Track, id=pk)
+        self.track = get_object_or_404(models.Track, id=pk, private=False)
         if os.path.exists(self.track.file.path):
             self.set_download()
             return FileResponse(
