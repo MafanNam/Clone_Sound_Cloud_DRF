@@ -1,8 +1,10 @@
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, parsers
 
 from audio_library import models
 from audio_library.api import serializers
+from base.classes import MixedSerializer
 from base.permissions import IsAuthor
+from base.services import delete_old_file
 
 
 class GenreView(generics.ListAPIView):
@@ -23,6 +25,49 @@ class LicenseView(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+class AlbumView(viewsets.ModelViewSet):
+    """CRUD album user"""
+    parser_classes = (parsers.MultiPartParser,)
+    serializer_class = serializers.AlbumSerializer
+    permission_classes = [IsAuthor]
+
+    def get_queryset(self):
+        return models.Album.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        delete_old_file(instance.cover.path)
+        instance.delete()
+
+
+class PublicAlbumView(generics.ListAPIView):
+    """List public album for user"""
+    serializer_class = serializers.AlbumSerializer
+
+    def get_queryset(self):
+        return models.Album.objects.filter(user__id=self.kwargs.get('pk'), private=False)
+
+
+class TrackView(MixedSerializer, viewsets.ModelViewSet):
+    """CRUD tracks"""
+    parser_classes = (parsers.MultiPartParser,)
+    permission_classes = [IsAuthor]
+    serializer_class = serializers.CreateAuthorTrackSerializer
+    serializer_classes_by_action = {
+        'list': serializers.AuthorTrackSerializer,
+    }
+
+    def get_queryset(self):
+        return models.Track.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        delete_old_file(instance.cover.path)
+        instance.delete()
 
 
 

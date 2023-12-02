@@ -1,3 +1,5 @@
+import os.path
+
 from django.core.exceptions import ValidationError
 
 
@@ -8,17 +10,17 @@ def get_path_upload_avatar(instance, file):
 
 def get_path_upload_album(instance, file):
     """Path to file album"""
-    return f"album/user_{instance.id}/{file}"
+    return f"album/user_{instance.user.id}/{file}"
 
 
 def get_path_upload_track(instance, file):
     """Path to file album"""
-    return f"track/user_{instance.id}/{file}"
+    return f"track/user_{instance.user.id}/{file}"
 
 
 def get_path_upload_playlist(instance, file):
     """Path to file playlist"""
-    return f"playlist/user_{instance.id}/{file}"
+    return f"playlist/user_{instance.user.id}/{file}"
 
 
 def validate_size_image(file_obj):
@@ -31,3 +33,9 @@ def validate_size_audio(file_obj):
     megabyte_limit = 6
     if file_obj.size > megabyte_limit * 1024 ** 6:
         raise ValidationError(f"Max size for audio file {megabyte_limit}MB")
+
+
+def delete_old_file(path_file):
+    """Delete old file"""
+    if os.path.exists(path_file):
+        os.remove(path_file)
