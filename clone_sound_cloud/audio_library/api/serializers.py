@@ -52,6 +52,20 @@ class AuthorTrackSerializer(CreateAuthorTrackSerializer):
     album = AlbumSerializer(many=False)
 
 
+class CreatePlayListSerializer(BaseSerializer):
+    class Meta:
+        model = models.Playlist
+        fields = ('id', 'title', 'cover', 'tracks',)
+
+    def update(self, instance, validated_data):
+        delete_old_file(instance.cover.path)
+        return super().update(instance, validated_data)
+
+
+class PlayListSerializer(CreatePlayListSerializer):
+    tracks = AuthorTrackSerializer(many=True, read_only=True)
+
+
 
 
 
