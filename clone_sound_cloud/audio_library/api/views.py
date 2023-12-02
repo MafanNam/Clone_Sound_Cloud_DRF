@@ -1,12 +1,14 @@
 import os.path
 
 from django.http import FileResponse, Http404
+
 from rest_framework import generics, viewsets, parsers, views
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import get_object_or_404
 
 from audio_library import models
 from audio_library.api import serializers
-from base.classes import MixedSerializer, Pagination
+from base.classes import MixedSerializer, TrackAPIListPagination
 from base.permissions import IsAuthor
 from base.services import delete_old_file
 
@@ -97,21 +99,32 @@ class PlayListView(MixedSerializer, viewsets.ModelViewSet):
 
 class TrackListView(generics.ListAPIView):
     """List all track"""
-    queryset = models.Track.objects.all()
+    queryset = models.Track.objects.all().order_by('-id')
     serializer_class = serializers.AuthorTrackSerializer
-    pagination_class = Pagination
+    pagination_class = TrackAPIListPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('title', 'user')
+    ordering_fields = (
+        'create_at', 'play_count', 'download', 'user',)
 
 
 class AuthorTrackListView(generics.ListAPIView):
     """List all track user"""
     serializer_class = serializers.AuthorTrackSerializer
-    pagination_class = Pagination
+    pagination_class = TrackAPIListPagination
+    filter_backends = (SearchFilter, OrderingFilter)
+    search_fields = ('title', 'user')
+    ordering_fields = (
+        'create_at', 'play_count', 'download', 'user',)
 
     def get_queryset(self):
-        return models.Track.objects.filter(user__id=self.kwargs.get('pk'))
+        return models.Track.objects.filter(
+            user__id=self.kwargs.get('pk')).order_by('-id')
 
 
 class StreamingFileView(views.APIView):
+    """Listen track"""
+    serializer_class = None
 
     def set_play(self):
         self.track.plays_count += 1
@@ -129,6 +142,7 @@ class StreamingFileView(views.APIView):
 
 class DownloadTrackView(views.APIView):
     """Download track"""
+    serializer_class = None
 
     def set_download(self):
         self.track.download += 1
