@@ -40,7 +40,7 @@ class CreateAuthorTrackSerializer(BaseSerializer):
         model = models.Track
         fields = (
             'id', 'title', 'license', 'genre', 'album', 'link_of_author',
-            'file', 'private', 'cover', 'create_at', 'plays_count',
+            'file', 'private', 'cover', 'create_at', 'plays_count', 'likes_count',
             'download', 'user')
 
     def update(self, instance, validated_data):
