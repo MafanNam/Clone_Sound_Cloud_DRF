@@ -74,15 +74,25 @@ class UserProfile(models.Model):
         return f"{self.user}"
 
 
-class Follower(models.Model):
+class UserFollowing(models.Model):
     """Model Follower"""
     user = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, related_name='owner')
-    subscriber = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, related_name='subscribers')
+        get_user_model(), on_delete=models.CASCADE, null=True, blank=True,
+        related_name='following')
+    following_user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, null=True, blank=True,
+        related_name='followers')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'following_user'], name='unique_followers')
+        ]
+
+        ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.subscriber} follower on {self.user}"
+        return f"{self.user} follows {self.following_user}"
 
 
 class SocialLink(models.Model):

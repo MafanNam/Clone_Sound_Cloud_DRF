@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User, UserProfile, SocialLink
+from .models import User, UserProfile, SocialLink, UserFollowing
 
 
 # Register your models here.
@@ -42,3 +42,8 @@ class UserProfileAdmin(admin.ModelAdmin):
 @admin.register(SocialLink)
 class SocialLinkAdmin(admin.ModelAdmin):
     list_display = ('user', 'link',)
+
+
+@admin.register(UserFollowing)
+class UserFollowingAdmin(admin.ModelAdmin):
+    list_display = ('user', 'following_user', 'created_at',)
