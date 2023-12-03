@@ -63,7 +63,7 @@ class Track(models.Model):
     download = models.PositiveIntegerField(default=0)
     likes_count = models.PositiveIntegerField(default=0)
     user_of_likes = models.ManyToManyField(
-        get_user_model(), related_name='likes_of_tracks')
+        get_user_model(), related_name='likes_of_tracks', blank=True)
     private = models.BooleanField(default=False)
     cover = models.ImageField(
         upload_to=get_path_upload_cover_track, blank=True, null=True,

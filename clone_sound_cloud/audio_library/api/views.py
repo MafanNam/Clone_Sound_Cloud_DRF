@@ -3,9 +3,11 @@ import os.path
 from django.http import FileResponse, Http404
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import generics, viewsets, parsers, views
+from rest_framework import generics, viewsets, parsers, views, status
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from audio_library import models
 from audio_library.api import serializers
@@ -109,7 +111,7 @@ class TrackListView(generics.ListAPIView):
     ordering_fields = (
         'create_at', 'play_count', 'download', 'user',)
     filterset_fields = ['title', 'user__user_profile__display_name',
-                        'album__name', 'genre__name',]
+                        'album__name', 'genre__name', ]
 
 
 class AuthorTrackListView(generics.ListAPIView):
@@ -120,11 +122,11 @@ class AuthorTrackListView(generics.ListAPIView):
     search_fields = ('title', 'user')
     ordering_fields = (
         'create_at', 'play_count', 'download', 'user',)
-    filterset_fields = ['title', 'album__name', 'genre__name',]
+    filterset_fields = ['title', 'album__name', 'genre__name']
 
     def get_queryset(self):
         return models.Track.objects.filter(
-            user__id=self.kwargs.get('pk'), album__private=False,
+            user__id=self.kwargs.get('pk'),
             private=False).order_by('-id')
 
 
@@ -203,3 +205,36 @@ class CommentView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.Comment.objects.filter(track_id=self.kwargs.get('pk'))
+
+
+class TrackLikeView(views.APIView):
+    """Track like for authenticated user"""
+    serializer_class = None
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        """Set like for a track"""
+        track = get_object_or_404(models.Track, id=pk, private=False)
+        if track.user == request.user:
+            return Response({'message': 'You can not like own track.'}, status=status.HTTP_200_OK)
+        if request.user.likes_of_tracks.filter(id=track.id).exists():
+            return Response({'message': 'You already like this track.'}, status=status.HTTP_200_OK)
+
+        track.user_of_likes.add(request.user.id)
+        track.likes_count += 1
+        track.save()
+
+        return Response({'message': 'You like track.'}, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        """Remove like from track"""
+        track = get_object_or_404(models.Track, id=pk, private=False)
+        if not request.user.likes_of_tracks.filter(id=track.id).exists():
+            return Response(
+                {'message': 'You dont like this track for removing.'}, status=status.HTTP_200_OK)
+
+        track.user_of_likes.remove(request.user.id)
+        track.likes_count -= 1
+        track.save()
+
+        return Response({'message': 'Remove like track.'}, status=status.HTTP_200_OK)
