@@ -21,12 +21,21 @@ urlpatterns = [
         {'get': 'list', 'post': 'create'})),
     path('track/<int:pk>/', views.TrackView.as_view({
         'put': 'update', 'delete': 'destroy'})),
+    path('track/<int:pk>/like/', views.TrackLikeView.as_view()),
 
     path('stream-track/<int:pk>/', views.StreamingFileView.as_view()),
+    path('stream-author-track/<int:pk>/', views.StreamingFileAuthorView.as_view()),
     path('download-track/<int:pk>/', views.DownloadTrackView.as_view()),
 
     path('track-list/', views.TrackListView.as_view()),
-    path('authot-track-list/<int:pk>/', views.AuthorTrackListView.as_view()),
+    path('author-track-list/<int:pk>/', views.AuthorTrackListView.as_view()),
+
+    path('comments/', views.CommentAuthorView.as_view(
+        {'get': 'list', 'post': 'create'})),
+    path('comments/<int:pk>/', views.CommentAuthorView.as_view({
+        'put': 'update', 'delete': 'destroy'})),
+
+    path('comments_by_track/<int:pk>/', views.CommentView.as_view({'get': 'list'})),
 
     path('playlist/', views.PlayListView.as_view(
         {'get': 'list', 'post': 'create'})),

@@ -3,9 +3,9 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 
 from base.services import (
-    get_path_upload_album, validate_size_image,
+    get_path_upload_cover_album, validate_size_image,
     validate_size_audio, get_path_upload_track,
-    get_path_upload_playlist,
+    get_path_upload_cover_playlist, get_path_upload_cover_track,
 )
 
 
@@ -35,7 +35,7 @@ class Album(models.Model):
     description = models.TextField(max_length=1000)
     private = models.BooleanField(default=False)
     cover = models.ImageField(
-        upload_to=get_path_upload_album, blank=True, null=True,
+        upload_to=get_path_upload_cover_album, blank=True, null=True,
         validators=[FileExtensionValidator(allowed_extensions=['jpg']),
                     validate_size_image]
     )
@@ -55,7 +55,7 @@ class Track(models.Model):
     file = models.FileField(
         upload_to=get_path_upload_track,
         validators=[
-            FileExtensionValidator(allowed_extensions=['mp3', 'wev']),
+            FileExtensionValidator(allowed_extensions=['mp3', 'wav']),
             validate_size_audio]
     )
     create_at = models.DateTimeField(auto_now_add=True)
@@ -63,7 +63,14 @@ class Track(models.Model):
     download = models.PositiveIntegerField(default=0)
     likes_count = models.PositiveIntegerField(default=0)
     user_of_likes = models.ManyToManyField(
-        get_user_model(), related_name='likes_of_tracks')
+        get_user_model(), related_name='likes_of_tracks', blank=True)
+    private = models.BooleanField(default=False)
+    cover = models.ImageField(
+        upload_to=get_path_upload_cover_track, blank=True, null=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg']),
+            validate_size_image]
+    )
 
     def __str__(self):
         return f"{self.user} - {self.title}"
@@ -86,7 +93,7 @@ class Playlist(models.Model):
     title = models.CharField(max_length=50)
     tracks = models.ManyToManyField(Track, related_name='track_playlists')
     cover = models.ImageField(
-        upload_to=get_path_upload_playlist, blank=True, null=True,
+        upload_to=get_path_upload_cover_playlist, blank=True, null=True,
         validators=[
             FileExtensionValidator(allowed_extensions=['jpg']),
             validate_size_image]

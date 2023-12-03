@@ -1,10 +1,13 @@
 import os.path
 
 from django.http import FileResponse, Http404
+from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import generics, viewsets, parsers, views
+from rest_framework import generics, viewsets, parsers, views, status
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from audio_library import models
 from audio_library.api import serializers
@@ -74,6 +77,7 @@ class TrackView(MixedSerializer, viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         delete_old_file(instance.cover.path)
+        delete_old_file(instance.file.path)
         instance.delete()
 
 
@@ -99,32 +103,55 @@ class PlayListView(MixedSerializer, viewsets.ModelViewSet):
 
 class TrackListView(generics.ListAPIView):
     """List all track"""
-    queryset = models.Track.objects.all().order_by('-id')
+    queryset = models.Track.objects.filter(private=False).order_by('-id')
     serializer_class = serializers.AuthorTrackSerializer
     pagination_class = TrackAPIListPagination
-    filter_backends = (SearchFilter, OrderingFilter)
+    filter_backends = (SearchFilter, OrderingFilter, DjangoFilterBackend)
     search_fields = ('title', 'user')
     ordering_fields = (
         'create_at', 'play_count', 'download', 'user',)
+    filterset_fields = ['title', 'user__user_profile__display_name',
+                        'album__name', 'genre__name', ]
 
 
 class AuthorTrackListView(generics.ListAPIView):
     """List all track user"""
     serializer_class = serializers.AuthorTrackSerializer
     pagination_class = TrackAPIListPagination
-    filter_backends = (SearchFilter, OrderingFilter)
+    filter_backends = (SearchFilter, OrderingFilter, DjangoFilterBackend)
     search_fields = ('title', 'user')
     ordering_fields = (
         'create_at', 'play_count', 'download', 'user',)
+    filterset_fields = ['title', 'album__name', 'genre__name']
 
     def get_queryset(self):
         return models.Track.objects.filter(
-            user__id=self.kwargs.get('pk')).order_by('-id')
+            user__id=self.kwargs.get('pk'),
+            private=False).order_by('-id')
 
 
 class StreamingFileView(views.APIView):
     """Listen track"""
     serializer_class = None
+
+    def set_play(self):
+        self.track.plays_count += 1
+        self.track.save()
+
+    def get(self, request, pk):
+        self.track = get_object_or_404(models.Track, id=pk, private=False)
+        if os.path.exists(self.track.file.path):
+            self.set_play()
+            return FileResponse(open(self.track.file.path, 'rb'),
+                                filename=self.track.file.name)
+        else:
+            return Http404
+
+
+class StreamingFileAuthorView(views.APIView):
+    """Listen track user"""
+    serializer_class = None
+    permission_classes = [IsAuthor]
 
     def set_play(self):
         self.track.plays_count += 1
@@ -149,7 +176,7 @@ class DownloadTrackView(views.APIView):
         self.track.save()
 
     def get(self, request, pk):
-        self.track = get_object_or_404(models.Track, id=pk)
+        self.track = get_object_or_404(models.Track, id=pk, private=False)
         if os.path.exists(self.track.file.path):
             self.set_download()
             return FileResponse(
@@ -158,3 +185,56 @@ class DownloadTrackView(views.APIView):
             )
         else:
             return Http404
+
+
+class CommentAuthorView(viewsets.ModelViewSet):
+    """CRUD comment user"""
+    serializer_class = serializers.CommentAuthorSerializer
+    permission_classes = [IsAuthor]
+
+    def get_queryset(self):
+        return models.Comment.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class CommentView(viewsets.ModelViewSet):
+    """Comment for track"""
+    serializer_class = serializers.CommentSerializer
+
+    def get_queryset(self):
+        return models.Comment.objects.filter(track_id=self.kwargs.get('pk'))
+
+
+class TrackLikeView(views.APIView):
+    """Track like for authenticated user"""
+    serializer_class = None
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        """Set like for a track"""
+        track = get_object_or_404(models.Track, id=pk, private=False)
+        if track.user == request.user:
+            return Response({'message': 'You can not like own track.'}, status=status.HTTP_200_OK)
+        if request.user.likes_of_tracks.filter(id=track.id).exists():
+            return Response({'message': 'You already like this track.'}, status=status.HTTP_200_OK)
+
+        track.user_of_likes.add(request.user.id)
+        track.likes_count += 1
+        track.save()
+
+        return Response({'message': 'You like track.'}, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        """Remove like from track"""
+        track = get_object_or_404(models.Track, id=pk, private=False)
+        if not request.user.likes_of_tracks.filter(id=track.id).exists():
+            return Response(
+                {'message': 'You dont like this track for removing.'}, status=status.HTTP_200_OK)
+
+        track.user_of_likes.remove(request.user.id)
+        track.likes_count -= 1
+        track.save()
+
+        return Response({'message': 'Remove like track.'}, status=status.HTTP_200_OK)
