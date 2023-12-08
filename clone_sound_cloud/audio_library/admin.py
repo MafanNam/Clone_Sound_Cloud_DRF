@@ -42,3 +42,9 @@ class PlaylistAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'title',)
     list_display_links = ('user',)
     search_fields = ('user__email', 'user__user_profile__display_name', 'track__title')
+
+
+@admin.register(models.PlayedUserTrack)
+class PlayedUserTrackAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'track', 'played_at',)
+    list_display_links = ('id', 'user',)

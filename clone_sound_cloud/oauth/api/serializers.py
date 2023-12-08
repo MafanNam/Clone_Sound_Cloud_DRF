@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from oauth.models import UserProfile, SocialLink, UserFollowing
@@ -40,9 +41,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
                   'city', 'bio', 'display_name',
                   'following', 'followers',)
 
+    @extend_schema_field(FollowingSerializer)
     def get_following(self, obj):
         return FollowingSerializer(obj.user.following.all(), many=True).data
 
+    @extend_schema_field(FollowersSerializer)
     def get_followers(self, obj):
         return FollowersSerializer(obj.user.followers.all(), many=True).data
 

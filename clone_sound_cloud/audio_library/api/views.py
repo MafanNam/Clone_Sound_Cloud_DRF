@@ -1,5 +1,5 @@
 import os.path
-
+from django.utils import timezone
 from django.http import FileResponse, Http404
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -114,6 +114,17 @@ class TrackListView(generics.ListAPIView):
                         'album__name', 'genre__name', ]
 
 
+class TrackListRecentlyPlayedView(generics.ListAPIView):
+    """List all recently played track"""
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.AuthorTrackSerializer
+
+    def get_queryset(self):
+        return models.Track.objects.filter(
+            private=False, played_track__user=self.request.user).order_by(
+            '-played_track__played_at')[:10]
+
+
 class AuthorTrackListView(generics.ListAPIView):
     """List all track user"""
     serializer_class = serializers.AuthorTrackSerializer
@@ -142,6 +153,15 @@ class StreamingFileView(views.APIView):
         self.track = get_object_or_404(models.Track, id=pk, private=False)
         if os.path.exists(self.track.file.path):
             self.set_play()
+            if request.user.is_authenticated:
+                played_instance, created = models.PlayedUserTrack.objects.get_or_create(
+                    user_id=request.user.id,
+                    track=self.track,
+                )
+
+                played_instance.played_at = timezone.now()
+                played_instance.save()
+
             return FileResponse(open(self.track.file.path, 'rb'),
                                 filename=self.track.file.name)
         else:

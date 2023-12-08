@@ -28,6 +28,7 @@ urlpatterns = [
     path('download-track/<int:pk>/', views.DownloadTrackView.as_view()),
 
     path('track-list/', views.TrackListView.as_view()),
+    path('track-list/recently-played/', views.TrackListRecentlyPlayedView.as_view()),
     path('author-track-list/<int:pk>/', views.AuthorTrackListView.as_view()),
 
     path('comments/', views.CommentAuthorView.as_view(
