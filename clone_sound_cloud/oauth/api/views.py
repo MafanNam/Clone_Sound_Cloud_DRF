@@ -71,6 +71,6 @@ class FollowAuthorView(views.APIView):
                 following_user=author
             )
             following_instance.delete()
-            return Response({'message': 'Unfollowed successfully'}, status=200)
+            return Response({'message': 'Unfollowed successfully'}, status=204)
         except UserFollowing.DoesNotExist:
             return Response({'error': 'You were not following this user'}, status=404)
