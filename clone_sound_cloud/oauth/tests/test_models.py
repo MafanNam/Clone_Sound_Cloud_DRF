@@ -6,10 +6,11 @@ from oauth import models
 
 def create_user(
         first_name='fir_test', last_name='las_test',
-        email='test@email.com', password='testpass123'):
+        email='test@email.com', password='testpass123',
+        is_active=False):
     return get_user_model().objects.create_user(
         first_name=first_name, last_name=last_name,
-        email=email, password=password,
+        email=email, password=password, is_active=is_active,
     )
 
 

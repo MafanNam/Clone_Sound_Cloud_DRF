@@ -42,6 +42,9 @@ class CreateAuthorTrackSerializer(BaseSerializer):
             'id', 'title', 'license', 'genre', 'album', 'link_of_author',
             'file', 'private', 'cover', 'create_at', 'plays_count', 'likes_count',
             'download', 'user')
+        extra_kwargs = {
+            'likes_count': {'read_only': True},
+        }
 
     def update(self, instance, validated_data):
         delete_old_file(instance.file.path)
