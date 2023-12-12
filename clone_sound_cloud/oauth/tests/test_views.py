@@ -32,12 +32,12 @@ def create_user(first_name='test_first', last_name='test_last',
 
 
 def create_superuser(first_name='test_first', last_name='test_last',
-                     email='admin@gmail.com', password='testpass123',
-                     is_active=False):
+                     email='admin@gmail.com', password='testpass123'):
     """Create and return a new user."""
     user = get_user_model().objects.create_superuser(
         first_name=first_name, last_name=last_name,
-        email=email, password=password, is_active=is_active)
+        email=email, password=password)
+    user.save()
     return user
 
 
