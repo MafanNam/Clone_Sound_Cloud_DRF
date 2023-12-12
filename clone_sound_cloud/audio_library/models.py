@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.core.validators import FileExtensionValidator
 from django.db import models
@@ -40,6 +41,9 @@ class Album(models.Model):
                     validate_size_image]
     )
 
+    def __str__(self):
+        return f"{self.name} - {self.user}"
+
 
 class Track(models.Model):
     """Model track"""
@@ -76,6 +80,17 @@ class Track(models.Model):
         return f"{self.user} - {self.title}"
 
 
+class PlayedUserTrack(models.Model):
+    """Played user track data"""
+    user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, related_name='user_played_track')
+    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name='played_track')
+    played_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.user} played {self.track.title} at {self.played_at }"
+
+
 class Comment(models.Model):
     """Model comment for track"""
     user = models.ForeignKey(
@@ -85,16 +100,22 @@ class Comment(models.Model):
     text = models.TextField(max_length=1000)
     create_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.user} - {self.track.title}"
+
 
 class Playlist(models.Model):
     """Model playlist user"""
     user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name='playlists')
     title = models.CharField(max_length=50)
-    tracks = models.ManyToManyField(Track, related_name='track_playlists')
+    tracks = models.ManyToManyField(Track, related_name='playlist_tracks')
     cover = models.ImageField(
         upload_to=get_path_upload_cover_playlist, blank=True, null=True,
         validators=[
             FileExtensionValidator(allowed_extensions=['jpg']),
             validate_size_image]
     )
+
+    def __str__(self):
+        return f"{self.user} - {self.title}"

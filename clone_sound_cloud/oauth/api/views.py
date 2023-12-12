@@ -1,10 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import render
-from rest_framework import viewsets, parsers, permissions
+from rest_framework import viewsets, parsers, permissions, views
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from base.permissions import IsAuthor
 from . import serializers
-from oauth.models import UserProfile
+from oauth.models import UserProfile, UserFollowing
 
 
 def login_spotify(request):
@@ -39,3 +42,35 @@ class SocialLinkView(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class FollowAuthorView(views.APIView):
+    """Follow author"""
+    permission_classes = [IsAuthenticated]
+    serializer_class = None
+
+    def post(self, request, pk):
+        author = get_object_or_404(get_user_model(), id=pk)
+
+        if request.user == author:
+            return Response({'message': 'You can not follow yourself'}, status=200)
+
+        following_instance, created = UserFollowing.objects.get_or_create(
+            user=request.user,
+            following_user=author
+        )
+        if not created:
+            return Response({'message': 'Already following this user'}, status=200)
+        return Response({'message': 'Now following this user'}, status=201)
+
+    def delete(self, request, pk):
+        author = get_object_or_404(get_user_model(), id=pk)
+        try:
+            following_instance = UserFollowing.objects.get(
+                user=request.user,
+                following_user=author
+            )
+            following_instance.delete()
+            return Response({'message': 'Unfollowed successfully'}, status=204)
+        except UserFollowing.DoesNotExist:
+            return Response({'error': 'You were not following this user'}, status=404)

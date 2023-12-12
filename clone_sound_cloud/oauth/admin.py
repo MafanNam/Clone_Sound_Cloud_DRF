@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User, UserProfile, SocialLink
+from .models import User, UserProfile, SocialLink, UserFollowing
 
 
 # Register your models here.
@@ -10,7 +10,7 @@ class UserAdmin(UserAdmin):
     """Define the admin pages for users."""
     model = User
     list_display = (
-        "email", "first_name", "last_name",
+        "id", "email", "first_name", "last_name",
         "is_active", "is_staff",)
     list_filter = ("email", "is_staff", "is_active")
     fieldsets = (
@@ -42,3 +42,8 @@ class UserProfileAdmin(admin.ModelAdmin):
 @admin.register(SocialLink)
 class SocialLinkAdmin(admin.ModelAdmin):
     list_display = ('user', 'link',)
+
+
+@admin.register(UserFollowing)
+class UserFollowingAdmin(admin.ModelAdmin):
+    list_display = ('user', 'following_user', 'created_at',)
