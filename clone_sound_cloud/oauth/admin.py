@@ -4,7 +4,19 @@ from django.contrib.auth.admin import UserAdmin
 from .models import User, UserProfile, SocialLink, UserFollowing
 
 
-# Register your models here.
+class SocialLinkInLine(admin.TabularInline):
+    model = SocialLink
+
+
+class UserFollowingInLine(admin.TabularInline):
+    model = UserFollowing
+    fk_name = "user"
+
+
+class UserProfileInLine(admin.TabularInline):
+    model = UserProfile
+
+
 @admin.register(User)
 class UserAdmin(UserAdmin):
     """Define the admin pages for users."""
@@ -29,6 +41,7 @@ class UserAdmin(UserAdmin):
             )}
          ),
     )
+    list_display_links = ('id', 'email',)
     search_fields = ("email",)
     ordering = ("email",)
 
