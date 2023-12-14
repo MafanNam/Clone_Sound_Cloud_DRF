@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # additional
+    'django_celery_results',
+    'django_celery_beat',
     'debug_toolbar',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -171,18 +173,22 @@ DJOSER = {
     'USER_CREATE_PASSWORD_RETYPE': True,
     'SET_USERNAME_RETYPE': True,
     'SET_PASSWORD_RETYPE': True,
-    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': [
         'http://127.0.0.1:0000', 'http://localhost:8000'],
-    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'ACTIVATION_URL': 'activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SERIALIZERS': {
         'user_create': 'oauth.api.serializers.CustomUserCreateSerializer',
         'user': 'oauth.api.serializers.CustomUserCreateSerializer',
         'current_user': 'oauth.api.serializers.CustomUserCreateSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer'},
+    'EMAIL': {
+        'activation': 'oauth.email.ActivationEmail',
+        'confirmation': 'oauth.email.ConfirmationEmail',
+    },
 }
 
 SPECTACULAR_SETTINGS = {
@@ -216,3 +222,21 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'openid'
 ]
 SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
+
+# CELERY SETTINGS
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+CELERY_RESULT_EXTENDED = True
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+# CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TIME_LIMIT = 30 * 60
+
+# CELERY BEAT SETTINGS
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

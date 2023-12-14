@@ -1,9 +1,18 @@
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from django.shortcuts import render
+from djoser import signals
+from djoser.compat import get_user_email
+from djoser.conf import settings
+
 from rest_framework import viewsets, parsers, permissions, views
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from djoser.views import UserViewSet
+
+from oauth.tasks import send_activate_email, test_funk
 
 from base.permissions import IsAuthor
 from . import serializers
@@ -12,6 +21,35 @@ from oauth.models import UserProfile, UserFollowing
 
 def login_spotify(request):
     return render(request, 'login_spotify.html')
+
+
+def test(request):
+    test_funk.delay()
+    return HttpResponse('Done')
+
+
+class CustomUserViewSet(UserViewSet):
+    def perform_create(self, serializer, *args, **kwargs):
+        user = serializer.save(*args, **kwargs)
+        signals.user_registered.send(
+            sender=self.__class__, user=user, request=self.request
+        )
+
+        context = {"user": user}
+        to = [get_user_email(user)]
+
+        if settings.SEND_ACTIVATION_EMAIL:
+            send_activate_email.delay(
+                {
+                    'user_id': user.id,
+                    'domain': self.request.get_host(),
+                    'protocol': 'https' if self.request.is_secure() else 'http',
+                    'site_name': self.request.get_host()
+                },
+                [get_user_email(user)]
+            )
+        elif settings.SEND_CONFIRMATION_EMAIL:
+            settings.EMAIL.confirmation(self.request, context).send(to)
 
 
 class UserProfileView(viewsets.ModelViewSet):

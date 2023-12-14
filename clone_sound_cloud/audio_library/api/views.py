@@ -236,9 +236,11 @@ class TrackLikeView(views.APIView):
         """Set like for a track"""
         track = get_object_or_404(models.Track, id=pk, private=False)
         if track.user == request.user:
-            return Response({'message': 'You can not like own track.'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'message': 'You can not like own track.'},
+                            status=status.HTTP_403_FORBIDDEN)
         if request.user.likes_of_tracks.filter(id=track.id).exists():
-            return Response({'message': 'You already like this track.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'You already like this track.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         track.user_of_likes.add(request.user.id)
         track.likes_count += 1
@@ -251,7 +253,8 @@ class TrackLikeView(views.APIView):
         track = get_object_or_404(models.Track, id=pk, private=False)
         if not request.user.likes_of_tracks.filter(id=track.id).exists():
             return Response(
-                {'message': 'You dont like this track for removing.'}, status=status.HTTP_403_FORBIDDEN)
+                {'message': 'You dont like this track for removing.'},
+                status=status.HTTP_403_FORBIDDEN)
 
         track.user_of_likes.remove(request.user.id)
         track.likes_count -= 1

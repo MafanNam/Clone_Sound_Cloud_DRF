@@ -1,9 +1,17 @@
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
 from . import views
 
 app_name = 'oauth'
 
+
+router = DefaultRouter()
+router.register("users", views.CustomUserViewSet)
+
 urlpatterns = [
+    path('celery-test/', views.test),
+
     path('user-profile/', views.UserProfileView.as_view(
         {'get': 'retrieve', 'put': 'update'}), name='user_profile'),
 
@@ -18,7 +26,8 @@ urlpatterns = [
         {'put': 'update', 'delete': 'destroy'}), name='social_link_detail'),
 
     path('spotify/', views.login_spotify),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.jwt')),
-    path('auth/', include('djoser.social.urls')),
+    path('auth/', include(router.urls)),
+    # path('auth/', include('djoser.urls')),
+    # path('auth/', include('djoser.urls.jwt')),
+    # path('auth/', include('djoser.social.urls')),
 ]
