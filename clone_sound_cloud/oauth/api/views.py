@@ -12,6 +12,8 @@ from rest_framework.response import Response
 
 from djoser.views import UserViewSet
 
+from django_celery_beat.models import PeriodicTask, CrontabSchedule
+
 from oauth.tasks import send_activate_email, test_funk
 
 from base.permissions import IsAuthor
@@ -26,6 +28,14 @@ def login_spotify(request):
 def test(request):
     test_funk.delay()
     return HttpResponse('Done')
+
+
+def send_spam_email_ones_week_celery(request):
+    schedule, created = CrontabSchedule.objects.get_or_create(hour=17, minute=33)
+    task = PeriodicTask.objects.update_or_create(
+        crontab=schedule, name='send_spam_email_ones_week',
+        task='oauth.tasks.send_spam_email')
+    return HttpResponse('Send')
 
 
 class CustomUserViewSet(UserViewSet):
