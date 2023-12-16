@@ -7,11 +7,13 @@ from config.celery import app
 
 from oauth import email as email_modul
 
+User = get_user_model()
+
 
 @app.task(bind=True, default_retry_delay=5 * 60)
 def send_email_celery_task(self, context, email, sender):
     try:
-        context['user'] = get_user_model().objects.get(id=context.get('user_id'))
+        context['user'] = User.objects.get(id=context.get('user_id'))
         match sender:
             case 'ActivationEmail':
                 email_modul.ActivationEmail(context=context).send(email)
@@ -33,7 +35,7 @@ def send_email_celery_task(self, context, email, sender):
 @app.task(bind=True, default_retry_delay=5 * 60)
 def send_spam_email_celery_task(self):
     try:
-        users = get_user_model().objects.all()
+        users = User.objects.filter(is_spam_email=True, is_active=True)
         subject = 'Test spam mass email with celery'
         message = 'Testing'
         from_email = settings.EMAIL_HOST_USER

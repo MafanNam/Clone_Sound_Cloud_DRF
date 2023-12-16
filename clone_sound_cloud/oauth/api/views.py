@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.utils.timezone import now
-from django.http import HttpResponse
 from django.shortcuts import render
 
 from djoser import signals, utils
@@ -14,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from oauth.tasks import send_email_celery_task, send_spam_email_celery_task
+from oauth.tasks import send_email_celery_task
 
 from oauth.models import UserProfile, UserFollowing
 from base.permissions import IsAuthor
@@ -25,11 +24,6 @@ User = get_user_model()
 
 def login_spotify(request):
     return render(request, 'login_spotify.html')
-
-
-def test(request):
-    send_spam_email_celery_task.delay()
-    return HttpResponse('Done')
 
 
 class CustomUserViewSet(UserViewSet):
@@ -298,3 +292,24 @@ class FollowAuthorView(views.APIView):
             return Response({'message': 'Unfollowed successfully'}, status=204)
         except UserFollowing.DoesNotExist:
             return Response({'error': 'You were not following this user'}, status=404)
+
+
+class SpamEmailOnceWeek(views.APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = None
+
+    def post(self, request):
+        user = request.user
+        if not user.is_spam_email:
+            user.is_spam_email = True
+            user.save()
+            return Response({'msg': 'You subscribed to the newsletter'}, status.HTTP_201_CREATED)
+        return Response({'msg': 'You are already subscribed to the newsletter'}, status.HTTP_200_OK)
+
+    def delete(self, request):
+        user = request.user
+        if user.is_spam_email:
+            user.is_spam_email = False
+            user.save()
+            return Response({'msg': 'You unsubscribed from the newsletter'}, status.HTTP_200_OK)
+        return Response({'msg': 'You are not subscribed to the newsletter'}, status.HTTP_200_OK)

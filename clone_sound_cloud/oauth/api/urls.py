@@ -9,9 +9,6 @@ router = DefaultRouter()
 router.register("users", views.CustomUserViewSet)
 
 urlpatterns = [
-    path('celery-test/', views.test),
-    # path('send-spam-once-week-email/', views.send_spam_email_once_week_celery),
-
     path('user-profile/', views.UserProfileView.as_view(
         {'get': 'retrieve', 'put': 'update'}), name='user_profile'),
 
@@ -24,6 +21,9 @@ urlpatterns = [
         {'get': 'list', 'post': 'create'}), name='social_link'),
     path('social-link/<int:pk>/', views.SocialLinkView.as_view(
         {'put': 'update', 'delete': 'destroy'}), name='social_link_detail'),
+
+    path('auth/users/send-spam-email-once-week/', views.SpamEmailOnceWeek.as_view(),
+         name='spam_email_once_week'),
 
     path('spotify/', views.login_spotify),
     path('auth/', include(router.urls)),

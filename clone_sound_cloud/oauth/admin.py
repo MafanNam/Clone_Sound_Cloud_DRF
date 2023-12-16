@@ -23,12 +23,12 @@ class UserAdmin(UserAdmin):
     model = User
     list_display = (
         "id", "email", "first_name", "last_name",
-        "is_active", "is_staff",)
-    list_filter = ("email", "is_staff", "is_active")
+        "is_active", "is_staff", "is_spam_email")
+    list_filter = ("email", "is_staff", "is_active", "is_spam_email")
     fieldsets = (
         (None, {"fields": ("email", "password", "first_name",
                            "last_name")}),
-        ("Permissions", {"fields": ("is_staff", "is_active",
+        ("Permissions", {"fields": ("is_staff", "is_active", "is_spam_email",
                                     "groups", "user_permissions")}),
     )
     add_fieldsets = (
@@ -37,7 +37,7 @@ class UserAdmin(UserAdmin):
             "fields": (
                 "email", "password1", "password2",
                 "first_name", "last_name", "is_staff",
-                "is_active", "groups", "user_permissions"
+                "is_active", "is_spam_email", "groups", "user_permissions"
             )}
          ),
     )
