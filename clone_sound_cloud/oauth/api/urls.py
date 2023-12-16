@@ -10,7 +10,7 @@ router.register("users", views.CustomUserViewSet)
 
 urlpatterns = [
     path('celery-test/', views.test),
-    path('send-spam-onse-week-email/', views.send_spam_email_ones_week_celery),
+    # path('send-spam-once-week-email/', views.send_spam_email_once_week_celery),
 
     path('user-profile/', views.UserProfileView.as_view(
         {'get': 'retrieve', 'put': 'update'}), name='user_profile'),

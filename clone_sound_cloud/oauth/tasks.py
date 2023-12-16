@@ -1,6 +1,3 @@
-from time import sleep
-
-from celery import shared_task
 from django.conf import settings
 
 from django.contrib.auth import get_user_model
@@ -9,14 +6,6 @@ from django.core.mail import send_mass_mail
 from config.celery import app
 
 from oauth import email as email_modul
-
-
-@shared_task(bind=True)
-def test_funk(self):
-    for i in range(10):
-        print(i)
-        sleep(2)
-    return 'Done'
 
 
 @app.task(bind=True, default_retry_delay=5 * 60)
@@ -41,8 +30,8 @@ def send_email_celery_task(self, context, email, sender):
     return 'Done'
 
 
-@shared_task(bind=True, default_retry_delay=5 * 60)
-def send_spam_email(self):
+@app.task(bind=True, default_retry_delay=5 * 60)
+def send_spam_email_celery_task(self):
     try:
         users = get_user_model().objects.all()
         subject = 'Test spam mass email with celery'
