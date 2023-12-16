@@ -180,6 +180,7 @@ DJOSER = {
         'http://127.0.0.1:0000', 'http://localhost:8000'],
     'ACTIVATION_URL': 'activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
+    'SEND_CONFIRMATION_EMAIL': True,
     'SERIALIZERS': {
         'user_create': 'oauth.api.serializers.CustomUserCreateSerializer',
         'user': 'oauth.api.serializers.CustomUserCreateSerializer',
@@ -188,13 +189,17 @@ DJOSER = {
     'EMAIL': {
         'activation': 'oauth.email.ActivationEmail',
         'confirmation': 'oauth.email.ConfirmationEmail',
+        'password_reset': 'oauth.email.PasswordResetEmail',
+        'password_changed_confirmation': 'oauth.email.PasswordChangedConfirmationEmail',
+        'username_changed_confirmation': 'oauth.email.UsernameChangedConfirmationEmail',
+        'username_reset': 'oauth.email.UsernameResetEmail',
     },
 }
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'CloneSoundCloud Project API',
     'DESCRIPTION': 'Clone music app',
-    'VERSION': '0.1.0',
+    'VERSION': '0.0.X',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
     'SCHEMA_PATH_PREFIX': r'/api/',
