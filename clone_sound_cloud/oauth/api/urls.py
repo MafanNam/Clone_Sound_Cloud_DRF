@@ -5,7 +5,6 @@ from . import views
 
 app_name = 'oauth'
 
-
 router = DefaultRouter()
 router.register("users", views.CustomUserViewSet)
 
@@ -28,7 +27,7 @@ urlpatterns = [
 
     path('spotify/', views.login_spotify),
     path('auth/', include(router.urls)),
+    path('auth/', include('djoser.urls.jwt')),
+    path('auth/', include('djoser.social.urls')),
     # path('auth/', include('djoser.urls')),
-    # path('auth/', include('djoser.urls.jwt')),
-    # path('auth/', include('djoser.social.urls')),
 ]
