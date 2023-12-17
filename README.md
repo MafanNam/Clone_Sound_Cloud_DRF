@@ -6,14 +6,21 @@ Clone SoundCloud API project.
 
 ## Virtual env
 ```bash
-$ virtualenv env
-$ source env/bin/activate
+$ pip install virtualenv
+$ python -m venv env
+$ source env/Scripts/activate
 ```
 
 ## Installation Python Packages
 
 ```bash
 $ pip install -r requirements.txt
+```
+
+## Go to django project
+
+```bash
+$ cd .\clone_sound_cloud\
 ```
 
 ## Create and Aplay migration
