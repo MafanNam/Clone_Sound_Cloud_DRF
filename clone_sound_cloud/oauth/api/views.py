@@ -303,7 +303,7 @@ class SpamEmailOnceWeek(views.APIView):
         if not user.is_spam_email:
             user.is_spam_email = True
             user.save()
-            return Response({'msg': 'You subscribed to the newsletter'}, status.HTTP_201_CREATED)
+            return Response({'msg': 'You subscribed to the newsletter'}, status.HTTP_200_OK)
         return Response({'msg': 'You are already subscribed to the newsletter'}, status.HTTP_200_OK)
 
     def delete(self, request):
