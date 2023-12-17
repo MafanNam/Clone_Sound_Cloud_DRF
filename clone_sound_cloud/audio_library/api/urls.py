@@ -26,6 +26,8 @@ urlpatterns = [
         'put': 'update', 'delete': 'destroy'}), name='track_detail'),
     path('track/<int:pk>/like/', views.TrackLikeView.as_view(),
          name='track_like'),
+    path('track/recently-played/', views.TrackRecentlyPlayedView.as_view(),
+         name='tracks_recently_played'),
 
     path('stream-track/<int:pk>/', views.StreamingFileView.as_view(),
          name='stream_track'),
@@ -35,8 +37,6 @@ urlpatterns = [
          name='download_track'),
 
     path('track-list/', views.TrackListView.as_view(), name='track_list'),
-    path('track-list/recently-played/', views.TrackListRecentlyPlayedView.as_view(),
-         name='tracks_recently_played'),
     path('author-track-list/<int:pk>/', views.AuthorTrackListView.as_view(),
          name='author_track_list'),
 

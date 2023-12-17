@@ -114,7 +114,7 @@ class TrackListView(generics.ListAPIView):
                         'album__name', 'genre__name', ]
 
 
-class TrackListRecentlyPlayedView(generics.ListAPIView):
+class TrackRecentlyPlayedView(generics.ListAPIView):
     """List all recently played track"""
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.AuthorTrackSerializer

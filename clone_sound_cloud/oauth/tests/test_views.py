@@ -119,6 +119,10 @@ class PublicTestAuthenticationViews(TestCase):
         res = self.client.get(detail_author_follow_url(self.user1.id))
         self.assertEqual(res.status_code, 401)
 
+    def test_spam_email_on_unauthorized(self):
+        res = self.client.post(reverse('oauth:spam_email_once_week'))
+        self.assertEqual(res.status_code, 401)
+
 
 class PrivateTestAuthenticationViews(TestCase):
 
@@ -167,3 +171,11 @@ class PrivateTestAuthenticationViews(TestCase):
 
         res = self.client.delete(detail_author_follow_url(self.user2.id))
         self.assertEqual(res.status_code, 204)
+
+    def test_mark_spam_email_once_week_user(self):
+        res = self.client.post(reverse('oauth:spam_email_once_week'))
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(self.user1.is_spam_email)
+
+        res = self.client.delete(reverse('oauth:spam_email_once_week'))
+        self.assertEqual(res.status_code, 200)
