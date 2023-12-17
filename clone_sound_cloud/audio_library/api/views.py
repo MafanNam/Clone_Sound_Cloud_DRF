@@ -70,7 +70,10 @@ class TrackView(MixedSerializer, viewsets.ModelViewSet):
     }
 
     def get_queryset(self):
-        return models.Track.objects.filter(user=self.request.user)
+        return (models.Track.objects.filter(user=self.request.user)
+                .prefetch_related('user', 'user__following', 'user__followers',
+                                  'user__social_links', 'license', 'genre')
+                .select_related('license', 'user__user_profile', 'album'))
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -91,7 +94,10 @@ class PlayListView(MixedSerializer, viewsets.ModelViewSet):
     }
 
     def get_queryset(self):
-        return models.Playlist.objects.filter(user=self.request.user)
+        return (models.Playlist.objects.filter(user=self.request.user)
+                .prefetch_related('tracks__user', 'tracks__user__following',
+                                  'tracks__user__followers', 'tracks__user__social_links',
+                                  'tracks__license', 'tracks__genre'))
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -103,7 +109,10 @@ class PlayListView(MixedSerializer, viewsets.ModelViewSet):
 
 class TrackListView(generics.ListAPIView):
     """List all track"""
-    queryset = models.Track.objects.filter(private=False).order_by('-id')
+    queryset = (models.Track.objects.filter(private=False).order_by('-id')
+                .prefetch_related('user', 'user__following', 'user__followers',
+                                  'user__social_links', 'license', 'genre')
+                .select_related('license', 'user__user_profile', 'album'))
     serializer_class = serializers.AuthorTrackSerializer
     pagination_class = TrackAPIListPagination
     filter_backends = (SearchFilter, OrderingFilter, DjangoFilterBackend)
@@ -120,9 +129,12 @@ class TrackRecentlyPlayedView(generics.ListAPIView):
     serializer_class = serializers.AuthorTrackSerializer
 
     def get_queryset(self):
-        return models.Track.objects.filter(
+        return (models.Track.objects.filter(
             private=False, played_track__user=self.request.user).order_by(
             '-played_track__played_at')[:10]
+                .prefetch_related('user', 'user__following', 'user__followers',
+                                  'user__social_links', 'license', 'genre')
+                .select_related('license', 'user__user_profile', 'album'))
 
 
 class AuthorTrackListView(generics.ListAPIView):
@@ -136,9 +148,12 @@ class AuthorTrackListView(generics.ListAPIView):
     filterset_fields = ['title', 'album__name', 'genre__name']
 
     def get_queryset(self):
-        return models.Track.objects.filter(
+        return (models.Track.objects.filter(
             user__id=self.kwargs.get('pk'),
             private=False).order_by('-id')
+                .prefetch_related('user', 'license', 'user__following',
+                                  'user__followers', 'user__social_links', 'genre')
+                .select_related('user', 'user__user_profile'))
 
 
 class StreamingFileView(views.APIView):
@@ -224,7 +239,10 @@ class CommentView(viewsets.ModelViewSet):
     serializer_class = serializers.CommentSerializer
 
     def get_queryset(self):
-        return models.Comment.objects.filter(track_id=self.kwargs.get('pk'))
+        return (models.Comment.objects.filter(track_id=self.kwargs.get('pk'))
+                .prefetch_related('user', 'user__user_profile', 'user__following',
+                                  'user__followers', 'user__social_links')
+                .select_related('user'))
 
 
 class TrackLikeView(views.APIView):
