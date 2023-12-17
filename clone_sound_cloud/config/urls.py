@@ -8,10 +8,10 @@ urlpatterns = [
     path('api/', include('oauth.api.urls')),
     path('api/audio/', include('audio_library.api.urls')),
 
-
     path('api/social/', include('social_django.urls')),
 
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'),
          name='swagger-ui'),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]

@@ -16,6 +16,10 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = []
 
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
 AUTH_USER_MODEL = 'oauth.User'
 
 # Application definition
@@ -29,6 +33,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # additional
+    'django_celery_results',
+    'django_celery_beat',
+    'debug_toolbar',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -52,6 +59,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -82,9 +91,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # },
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
     }
 }
 
@@ -111,7 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 
@@ -156,24 +173,33 @@ DJOSER = {
     'USER_CREATE_PASSWORD_RETYPE': True,
     'SET_USERNAME_RETYPE': True,
     'SET_PASSWORD_RETYPE': True,
-    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': True,
+    'SEND_CONFIRMATION_EMAIL': True,
+    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': [
         'http://127.0.0.1:0000', 'http://localhost:8000'],
-    'ACTIVATION_URL': '#/activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL': True,
+    'ACTIVATION_URL': 'activate/{uid}/{token}',
     'SERIALIZERS': {
         'user_create': 'oauth.api.serializers.CustomUserCreateSerializer',
         'user': 'oauth.api.serializers.CustomUserCreateSerializer',
         'current_user': 'oauth.api.serializers.CustomUserCreateSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer'},
+    'EMAIL': {
+        'activation': 'oauth.email.ActivationEmail',
+        'confirmation': 'oauth.email.ConfirmationEmail',
+        'password_reset': 'oauth.email.PasswordResetEmail',
+        'password_changed_confirmation': 'oauth.email.PasswordChangedConfirmationEmail',
+        'username_changed_confirmation': 'oauth.email.UsernameChangedConfirmationEmail',
+        'username_reset': 'oauth.email.UsernameResetEmail',
+    },
 }
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'CloneSoundCloud Project API',
     'DESCRIPTION': 'Clone music app',
-    'VERSION': '0.1.0',
+    'VERSION': '0.0.X',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
     'SCHEMA_PATH_PREFIX': r'/api/',
@@ -185,6 +211,7 @@ EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = 'Clone Sound Cloud <clonesoundcloud@gmail.com>'
 
 SOCIAL_AUTH_SPOTIFY_KEY = config('SOCIAL_AUTH_SPOTIFY_KEY')
 SOCIAL_AUTH_SPOTIFY_SECRET = config('SOCIAL_AUTH_SPOTIFY_SECRET')
@@ -201,3 +228,20 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'openid'
 ]
 SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
+
+# CELERY SETTINGS
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Kiev'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+# CELERY RESULT SETTINGS
+CELERY_RESULT_EXTENDED = True
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+
+# CELERY BEAT SETTINGS
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

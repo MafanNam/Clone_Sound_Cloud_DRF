@@ -38,6 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    is_spam_email = models.BooleanField(default=False)
 
     objects = UserManager()
 
@@ -98,8 +99,7 @@ class UserFollowing(models.Model):
 class SocialLink(models.Model):
     """Model link in social user"""
     user = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE,
-        related_name='social_links')
+        get_user_model(), on_delete=models.CASCADE, related_name='social_links')
     link = models.URLField(max_length=100)
 
     def __str__(self):

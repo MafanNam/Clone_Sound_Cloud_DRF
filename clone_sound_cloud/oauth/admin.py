@@ -4,19 +4,31 @@ from django.contrib.auth.admin import UserAdmin
 from .models import User, UserProfile, SocialLink, UserFollowing
 
 
-# Register your models here.
+class SocialLinkInLine(admin.TabularInline):
+    model = SocialLink
+
+
+class UserFollowingInLine(admin.TabularInline):
+    model = UserFollowing
+    fk_name = "user"
+
+
+class UserProfileInLine(admin.TabularInline):
+    model = UserProfile
+
+
 @admin.register(User)
 class UserAdmin(UserAdmin):
     """Define the admin pages for users."""
     model = User
     list_display = (
         "id", "email", "first_name", "last_name",
-        "is_active", "is_staff",)
-    list_filter = ("email", "is_staff", "is_active")
+        "is_active", "is_staff", "is_spam_email")
+    list_filter = ("email", "is_staff", "is_active", "is_spam_email")
     fieldsets = (
         (None, {"fields": ("email", "password", "first_name",
                            "last_name")}),
-        ("Permissions", {"fields": ("is_staff", "is_active",
+        ("Permissions", {"fields": ("is_staff", "is_active", "is_spam_email",
                                     "groups", "user_permissions")}),
     )
     add_fieldsets = (
@@ -25,10 +37,11 @@ class UserAdmin(UserAdmin):
             "fields": (
                 "email", "password1", "password2",
                 "first_name", "last_name", "is_staff",
-                "is_active", "groups", "user_permissions"
+                "is_active", "is_spam_email", "groups", "user_permissions"
             )}
          ),
     )
+    list_display_links = ('id', 'email',)
     search_fields = ("email",)
     ordering = ("email",)
 

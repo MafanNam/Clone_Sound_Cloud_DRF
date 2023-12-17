@@ -1,7 +1,12 @@
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
 from . import views
 
 app_name = 'oauth'
+
+router = DefaultRouter()
+router.register("users", views.CustomUserViewSet)
 
 urlpatterns = [
     path('user-profile/', views.UserProfileView.as_view(
@@ -17,8 +22,12 @@ urlpatterns = [
     path('social-link/<int:pk>/', views.SocialLinkView.as_view(
         {'put': 'update', 'delete': 'destroy'}), name='social_link_detail'),
 
+    path('auth/users/send-spam-email-once-week/', views.SpamEmailOnceWeek.as_view(),
+         name='spam_email_once_week'),
+
     path('spotify/', views.login_spotify),
-    path('auth/', include('djoser.urls')),
+    path('auth/', include(router.urls)),
     path('auth/', include('djoser.urls.jwt')),
     path('auth/', include('djoser.social.urls')),
+    # path('auth/', include('djoser.urls')),
 ]
