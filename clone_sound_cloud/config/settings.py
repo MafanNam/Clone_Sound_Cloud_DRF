@@ -107,11 +107,11 @@ DATABASES_ALL = {
     },
     DB_POSTGRESQL: {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', 'postgres'),
-        'USER': config('DB_USER', 'postgres'),
-        'PASSWORD': config('DB_PASSWORD', 'postgres'),
-        'HOST': config('DB_HOST', 'localhost'),
-        'PORT': config('DB_PORT', '5432'),
+        'NAME': config('POSTGRES_NAME', 'postgres'),
+        'USER': config('POSTGRES_USER', 'postgres'),
+        'PASSWORD': config('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': config('POSTGRES_HOST', 'localhost'),
+        'PORT': config('POSTGRES_PORT', '5432'),
     }
 }
 
