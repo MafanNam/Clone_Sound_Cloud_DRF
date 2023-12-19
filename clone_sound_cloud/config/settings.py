@@ -29,6 +29,15 @@ INTERNAL_IPS = [
 
 AUTH_USER_MODEL = 'oauth.User'
 
+ADMINS = (
+    # ('Your Name', 'your_email@domain.com'),
+    ('admin', 'admin@gmail.com'),
+)
+ADMIN_USERNAME = 'admin'
+ADMIN_EMAIL = 'admin@gmail.com'
+ADMIN_INITIAL_PASSWORD = '1'
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -253,8 +262,8 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 
 # CELERY RESULT SETTINGS
 CELERY_RESULT_EXTENDED = True
-CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
-CELERY_CACHE_BACKEND = config('CELERY_CACHE_BACKEND', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', 'django-db')
+CELERY_CACHE_BACKEND = config('CELERY_CACHE_BACKEND', 'django-cache')
 
 # CELERY BEAT SETTINGS
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

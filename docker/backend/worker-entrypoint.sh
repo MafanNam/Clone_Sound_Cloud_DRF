@@ -1,6 +1,6 @@
 #!/bin/sh
 
-until cd /app/backend
+until cd /app/clone_sound_cloud
 do
     echo "Waiting for server volume..."
 done

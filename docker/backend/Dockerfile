@@ -10,7 +10,7 @@ RUN pip install gunicorn
 ADD ./requirements.txt /app/
 RUN pip install -r requirements.txt
 
-ADD ./clone_sound_cloud /app/backend
+ADD ./clone_sound_cloud /app/clone_sound_cloud
 ADD ./docker /app/docker
 
 RUN chmod +x /app/docker/backend/server-entrypoint.sh

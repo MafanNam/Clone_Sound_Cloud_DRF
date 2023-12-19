@@ -1,6 +1,6 @@
 #!/bin/sh
 
-until cd /app/backend
+until cd /app/clone_sound_cloud
 do
     echo "Waiting for server volume..."
 done
@@ -15,7 +15,7 @@ done
 
 python manage.py collectstatic --noinput
 
-# python manage.py createsuperuser --noinput
+python manage.py createsuperuser --noinput
 
 #gunicorn backend.wsgi --bind 0.0.0.0:8000 --workers 4 --threads 4
 
