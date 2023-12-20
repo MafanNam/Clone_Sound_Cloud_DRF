@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.11'
 
 
 services:
@@ -21,7 +21,7 @@ services:
         expose:
             - "8000:8000"
         env_file:
-            -   ./.env
+            - .env
     worker:
         restart: unless-stopped
         build:
@@ -31,7 +31,7 @@ services:
         volumes:
             - static_volume:/app/clone_sound_cloud/django_static
         env_file:
-            - ./.env
+            - .env
         depends_on:
             - server
             - redis
@@ -46,7 +46,7 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql/data/
         env_file:
-            - ./.env
+            - .env
         expose:
             - "5432"
 

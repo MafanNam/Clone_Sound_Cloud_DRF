@@ -1,5 +1,6 @@
 # pull official base image
 FROM python:3.11-alpine3.15
+LABEL maintainer="Mafan"
 
 RUN apk update && apk add python3-dev gcc libc-dev
 
