@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 
 from . import views
@@ -27,6 +27,7 @@ urlpatterns = [
 
     path('spotify/', views.login_spotify),
     path('auth/', include(router.urls)),
+    re_path(r"^auth/jwt/create/?", views.CustomTokenObtainPairView.as_view(), name="jwt-create"),
     path('auth/', include('djoser.urls.jwt')),
     path('auth/', include('djoser.social.urls')),
     # path('auth/', include('djoser.urls')),
