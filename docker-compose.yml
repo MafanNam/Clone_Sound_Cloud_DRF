@@ -35,9 +35,25 @@ services:
         depends_on:
             - server
             - redis
+    celery-beat:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        entrypoint: /app/docker/backend/celery-beat-entrypoint.sh
+        volumes:
+            - static_volume:/app/clone_sound_cloud/django_static
+        env_file:
+            - .env
+        depends_on:
+            - server
+            - redis
+            - worker
     redis:
         restart: unless-stopped
         image: redis:7.0.5-alpine
+        sysctls:
+            net.core.somaxconn: "4096"
         expose:
             - "6379"
     db:

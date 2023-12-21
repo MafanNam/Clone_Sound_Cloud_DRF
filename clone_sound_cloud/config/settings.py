@@ -29,15 +29,6 @@ INTERNAL_IPS = [
 
 AUTH_USER_MODEL = 'oauth.User'
 
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-    ('admin', 'admin@gmail.com'),
-)
-ADMIN_USERNAME = 'admin'
-ADMIN_EMAIL = 'admin@gmail.com'
-ADMIN_INITIAL_PASSWORD = '1'
-
-
 # Application definition
 
 INSTALLED_APPS = [
