@@ -238,7 +238,7 @@ class UserProfileView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return UserProfile.objects.get(user=self.request.user)
+        return UserProfile.objects.select_related('user').get(user=self.request.user)
 
     def get_object(self):
         return self.get_queryset()
@@ -246,7 +246,9 @@ class UserProfileView(viewsets.ModelViewSet):
 
 class AuthorView(viewsets.ReadOnlyModelViewSet):
     """List authors"""
-    queryset = User.objects.all().prefetch_related('social_links')
+    queryset = (User.objects.all()
+                .prefetch_related('social_links', 'user_profile', 'following', 'followers')
+                .select_related('user_profile'))
     serializer_class = serializers.AuthorSerializer
 
 

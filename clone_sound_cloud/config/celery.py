@@ -13,7 +13,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.conf.beat_schedule = {
     'send-spam-mail-every-week-at-8': {
         'task': 'oauth.tasks.send_spam_email_celery_task',
-        'schedule': crontab(hour='17', minute='0', day_of_week='sat'),
+        'schedule': crontab(hour='14', minute='20', day_of_week='thu'),
     }
 }
 
