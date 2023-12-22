@@ -63,7 +63,20 @@ services:
             - .env.docker
         expose:
             - "5432"
+    pgadmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin4_container
+        restart: unless-stopped
+        ports:
+            - "8888:80"
+        env_file:
+            - .env.docker
+        volumes:
+            - pgadmin-data:/var/lib/pgadmin
+        depends_on:
+            - db
 
 volumes:
     static_volume: {}
     postgres_data: {}
+    pgadmin-data: {}
