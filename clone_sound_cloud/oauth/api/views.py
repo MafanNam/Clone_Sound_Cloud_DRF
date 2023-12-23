@@ -12,16 +12,14 @@ from djoser.views import UserViewSet
 
 from rest_framework import parsers, permissions, status, views, viewsets
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from oauth.tasks import send_email_celery_task
-
 from oauth.models import UserProfile, UserFollowing
+from oauth.tasks import send_email_celery_task
 from base.permissions import IsAuthor
 from . import serializers
 
@@ -62,19 +60,21 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 class CustomUserViewSet(UserViewSet):
 
-    # def create(self, request, *args, **kwargs):
-    #     email_ = request.data['email']
-    #     password = request.data['password']
-    #     re_password = request.data['re_password']
-    #
-    #     if email_ and password and re_password:
-    #         if password != re_password:
-    #             return Response({'error': 'Passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
-    #
-    #         if User.objects.filter(email=email_).exists():
-    #             return Response({'error': 'User with this email already exists.'}, status=status.HTTP_409_CONFLICT)
-    #
-    #     return super().create(request, *args, **kwargs)
+    def create(self, request, *args, **kwargs):
+        email_ = request.data['email']
+        password = request.data['password']
+        re_password = request.data['re_password']
+
+        if email_ and password and re_password:
+            if password != re_password:
+                return Response({'error': 'Passwords do not match.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            if User.objects.filter(email=email_).exists():
+                return Response({'error': 'User with this email already exists.'},
+                                status=status.HTTP_409_CONFLICT)
+
+        return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer, *args, **kwargs):
         user = serializer.save(*args, **kwargs)
@@ -315,7 +315,7 @@ class SocialLinkView(viewsets.ModelViewSet):
 
 class FollowAuthorView(views.APIView):
     """Follow author"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = None
 
     def post(self, request, pk):
@@ -346,7 +346,7 @@ class FollowAuthorView(views.APIView):
 
 
 class SpamEmailOnceWeek(views.APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = None
 
     def post(self, request):
