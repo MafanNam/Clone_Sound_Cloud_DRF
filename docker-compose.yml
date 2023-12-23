@@ -27,7 +27,7 @@ services:
     elasticsearch:
         image: elasticsearch:8.11.0
         volumes:
-            - elastic-data:/var/lib/elasticsearch/data/
+            - elastic_data:/var/lib/elasticsearch/data/
         environment:
             - xpack.security.enabled=false
             - discovery.type=single-node
@@ -90,5 +90,5 @@ services:
 volumes:
     static_volume: {}
     postgres_data: {}
+    elastic_data: {}
     pgadmin-data: {}
-    elastic-data: {}
