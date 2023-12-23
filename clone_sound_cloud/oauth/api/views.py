@@ -41,6 +41,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
         if authenticate(email=email_, password=password) is None:
             user = get_object_or_404(User, email=email_)
+
             if not user.is_active:
                 return Response({'msg': 'user is not active.'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -60,6 +61,21 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class CustomUserViewSet(UserViewSet):
+
+    # def create(self, request, *args, **kwargs):
+    #     email_ = request.data['email']
+    #     password = request.data['password']
+    #     re_password = request.data['re_password']
+    #
+    #     if email_ and password and re_password:
+    #         if password != re_password:
+    #             return Response({'error': 'Passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
+    #
+    #         if User.objects.filter(email=email_).exists():
+    #             return Response({'error': 'User with this email already exists.'}, status=status.HTTP_409_CONFLICT)
+    #
+    #     return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer, *args, **kwargs):
         user = serializer.save(*args, **kwargs)
         signals.user_registered.send(
