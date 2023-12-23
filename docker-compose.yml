@@ -22,6 +22,17 @@ services:
             - "8000:8000"
         env_file:
             - .env.docker
+        depends_on:
+            - elasticsearch
+    elasticsearch:
+        image: elasticsearch:8.11.0
+        volumes:
+            - elastic-data:/var/lib/elasticsearch/data/
+        environment:
+            - xpack.security.enabled=false
+            - discovery.type=single-node
+        ports:
+            - "9200:9200"
     worker:
         restart: unless-stopped
         build:
@@ -80,3 +91,4 @@ volumes:
     static_volume: {}
     postgres_data: {}
     pgadmin-data: {}
+    elastic-data: {}

@@ -1,8 +1,14 @@
 from django.urls import path
 
+from rest_framework import routers
+
 from . import views
 
 app_name = 'audio'
+
+router = routers.SimpleRouter(trailing_slash=False)
+
+router.register(r'track-search', views.SearchTrackView, basename='track-search')
 
 urlpatterns = [
     path('genre/', views.GenreView.as_view(), name='genre'),
@@ -54,3 +60,5 @@ urlpatterns = [
         {'put': 'update', 'delete': 'destroy'}), name='playlist_detail'),
 
 ]
+
+urlpatterns += router.urls

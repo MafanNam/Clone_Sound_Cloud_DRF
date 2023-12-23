@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
     'cachalot',
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
 
     # OAuth
     'djoser',
@@ -277,3 +279,14 @@ DEBUG_TOOLBAR_PANELS = [
 
     'cachalot.panels.CachalotPanel',
 ]
+
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': config('ELASTICSEARCH_HOST', 'elasticsearch:9200')
+    },
+}
+
+ELASTICSEARCH_INDEX_NAMES = {
+    'tracks.track': 'tracks',
+}
