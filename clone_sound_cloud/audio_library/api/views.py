@@ -1,13 +1,7 @@
 import os.path
 from django.utils import timezone
 from django.http import FileResponse, Http404
-from django_elasticsearch_dsl_drf.constants import SUGGESTER_COMPLETION
-from django_elasticsearch_dsl_drf.filter_backends import (
-    SuggesterFilterBackend, FunctionalSuggesterFilterBackend,
-    CompoundSearchFilterBackend)
-from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema
 
 from rest_framework import generics, viewsets, parsers, views, status
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -17,7 +11,6 @@ from rest_framework.response import Response
 
 from audio_library import models
 from audio_library.api import serializers
-from audio_library.documents import TrackDocument
 from base.classes import MixedSerializer, TrackAPIListPagination
 from base.permissions import IsAuthor
 from base.services import delete_old_file
@@ -128,37 +121,6 @@ class TrackListView(generics.ListAPIView):
         'create_at', 'play_count', 'download', 'user',)
     filterset_fields = ['title', 'user__user_profile__display_name',
                         'album__name', 'genre__name', ]
-
-
-@extend_schema(tags=['ElasticSearch'])
-class SearchTrackView(DocumentViewSet):
-    """NOT COMPLETE API ENDPOINT!!!"""
-    pagination_class = TrackAPIListPagination
-    serializer_class = serializers.TrackDocumentSerializer
-    document = TrackDocument
-
-    filter_backends = [
-        CompoundSearchFilterBackend,
-        FunctionalSuggesterFilterBackend,
-        SuggesterFilterBackend,
-    ]
-
-    search_fields = (
-        'title',
-    )
-
-    suggester_fields = {
-        'title': {
-            'field': 'title.suggest',
-            'suggesters': [
-                SUGGESTER_COMPLETION,
-            ],
-        },
-    }
-
-    # functional_suggester_fields = {
-    #
-    # }
 
 
 class TrackRecentlyPlayedView(generics.ListAPIView):

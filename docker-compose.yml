@@ -10,6 +10,7 @@ services:
         volumes:
             - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
             - static_volume:/app/clone_sound_cloud/django_static
+            - media_volume:/app/clone_sound_cloud/media
     server:
         restart: unless-stopped
         build:
@@ -18,21 +19,11 @@ services:
         entrypoint: /app/docker/backend/server-entrypoint.sh
         volumes:
             - static_volume:/app/clone_sound_cloud/django_static
+            - media_volume:/app/clone_sound_cloud/media
         expose:
             - "8000:8000"
         env_file:
             - .env.docker
-        depends_on:
-            - elasticsearch
-    elasticsearch:
-        image: elasticsearch:8.11.0
-        volumes:
-            - elastic_data:/var/lib/elasticsearch/data/
-        environment:
-            - xpack.security.enabled=false
-            - discovery.type=single-node
-        ports:
-            - "9200:9200"
     worker:
         restart: unless-stopped
         build:
@@ -89,6 +80,6 @@ services:
 
 volumes:
     static_volume: {}
+    media_volume: {}
     postgres_data: {}
-    elastic_data: {}
     pgadmin-data: {}

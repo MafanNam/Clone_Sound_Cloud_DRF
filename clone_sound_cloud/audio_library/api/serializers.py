@@ -4,21 +4,6 @@ from audio_library import models
 from base.services import delete_old_file
 from oauth.api.serializers import AuthorSerializer
 
-from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
-
-from ..documents import TrackDocument
-
-
-class TrackDocumentSerializer(DocumentSerializer):
-    class Meta:
-        document = TrackDocument
-
-        fields = (
-            'id',
-            'title',
-            # 'user',
-        )
-
 
 class BaseSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
