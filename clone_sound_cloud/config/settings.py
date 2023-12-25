@@ -184,7 +184,7 @@ DJOSER = {
     'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
     'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': [
-        'http://127.0.0.1:0000', 'http://localhost:8000'],
+        'http://127.0.0.1:0000', 'http://localhost:8000', 'http://localhost'],
     'ACTIVATION_URL': 'activate/{uid}/{token}',
     'SERIALIZERS': {
         'user_create': 'oauth.api.serializers.CustomUserCreateSerializer',
@@ -199,6 +199,8 @@ DJOSER = {
         'username_changed_confirmation': 'oauth.email.UsernameChangedConfirmationEmail',
         'username_reset': 'oauth.email.UsernameResetEmail',
     },
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
+    'USERNAME_RESET_SHOW_EMAIL_NOT_FOUND': True,
 }
 
 SPECTACULAR_SETTINGS = {

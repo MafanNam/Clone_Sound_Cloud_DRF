@@ -196,7 +196,6 @@ class CustomUserViewSet(UserViewSet):
                 'site_name': self.request.get_host()
             }
             send_email_celery_task.delay(context, email_to, 'PasswordResetEmail')
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(["post"], detail=False)
@@ -222,6 +221,8 @@ class CustomUserViewSet(UserViewSet):
 
     @action(["post"], detail=False, url_path=f"set_{User.USERNAME_FIELD}")
     def set_username(self, request, *args, **kwargs):
+        """NOT WORKING !!!"""
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = self.request.user
@@ -242,6 +243,8 @@ class CustomUserViewSet(UserViewSet):
 
     @action(["post"], detail=False, url_path=f"reset_{User.USERNAME_FIELD}")
     def reset_username(self, request, *args, **kwargs):
+        """NOT WORKING !!!"""
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.get_user()
@@ -255,11 +258,12 @@ class CustomUserViewSet(UserViewSet):
                 'site_name': self.request.get_host()
             }
             send_email_celery_task.delay(context, email_to, 'UsernameResetEmail')
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(["post"], detail=False, url_path=f"reset_{User.USERNAME_FIELD}_confirm")
     def reset_username_confirm(self, request, *args, **kwargs):
+        """NOT WORKING !!!"""
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         new_username = serializer.data["new_" + User.USERNAME_FIELD]
