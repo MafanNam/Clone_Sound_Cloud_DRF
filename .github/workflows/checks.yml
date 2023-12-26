@@ -30,9 +30,6 @@ jobs:
         run: |
           cd ./clone_sound_cloud
           python manage.py test
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DJANGO_DB: ${{ secrets.DJANGO_DB }}
       - name: Run Linting
         run: |
           cd ./clone_sound_cloud
