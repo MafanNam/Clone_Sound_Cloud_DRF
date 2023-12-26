@@ -13,7 +13,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ['3.10', '3.11']
+        python-version: ['3.11']
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
           python manage.py test
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DJANGO_DB: ${{ vars.DJANGO_DB }}
+          DJANGO_DB: ${{ secrets.DJANGO_DB }}
       - name: Run Linting
         run: |
           cd ./clone_sound_cloud
