@@ -38,6 +38,7 @@ jobs:
       - name: Run Tests
         run: |
           cd ./clone_sound_cloud
+          celery -A config.celery worker --loglevel=info
           python manage.py test
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
