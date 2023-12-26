@@ -5,6 +5,11 @@
 # Docker
 .docker
 
+# Djnago
+media/
+media_files/
+db.sqlite3
+
 # Pycharm
 .idea
 
@@ -14,6 +19,7 @@ app/*/__pycache__/
 app/*/*/__pycache__/
 app/*/*/*/__pycache__/
 .env/
+.env.docker/
 .venv/
 venv/
 myenv/

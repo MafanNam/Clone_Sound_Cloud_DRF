@@ -6,6 +6,10 @@ RUN apk update && apk add python3-dev gcc libc-dev
 
 WORKDIR /app
 
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
 RUN pip install --upgrade pip
 RUN pip install gunicorn
 ADD ./requirements.txt /app/
