@@ -25,6 +25,13 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Run Tests
+        run: |
+          cd ./clone_sound_cloud
+          python manage.py test
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_DB: ${{ vars.DJANGO_DB }}
       - name: Run Linting
         run: |
           cd ./clone_sound_cloud
