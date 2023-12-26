@@ -39,6 +39,8 @@ jobs:
         run: |
           cd ./clone_sound_cloud
           celery -A config.celery worker --loglevel=info &
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
       - name: Run Tests
         run: |
           cd ./clone_sound_cloud
