@@ -11,7 +11,7 @@ jobs:
   run_unittests:
     runs-on: ubuntu-latest
 
-    container: python:3.8
+    container: python:3.11
 
     environment: Clone-sound-cloud-env
 
