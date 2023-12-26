@@ -37,6 +37,10 @@ jobs:
           EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
           EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
           EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          SOCIAL_AUTH_SPOTIFY_KEY: ${{ secrets.SOCIAL_AUTH_SPOTIFY_KEY }}
+          SOCIAL_AUTH_SPOTIFY_SECRET: ${{ secrets.SOCIAL_AUTH_SPOTIFY_SECRET }}
+          SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: ${{ secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY }}
+          SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET: ${{ secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET }}
       - name: Run Linting
         run: |
           cd ./clone_sound_cloud
