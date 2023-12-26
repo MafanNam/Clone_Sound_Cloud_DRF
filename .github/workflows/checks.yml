@@ -10,6 +10,7 @@ on:
 jobs:
   run_unittests:
     runs-on: ubuntu-latest
+    environment: Clone-sound-cloud-env
     strategy:
       max-parallel: 4
       matrix:
