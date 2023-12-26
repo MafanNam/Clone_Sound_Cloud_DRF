@@ -10,21 +10,54 @@ on:
 jobs:
   run_unittests:
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: ['3.10', '3.11']
+
+    container: python:3.11
+
+    environment: Clone-sound-cloud-env
+
+    services:
+
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
+
       - name: Install Dependencies
         run: |
-          python3 -m pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Start Celery worker
+        run: |
+          cd ./clone_sound_cloud
+          celery -A config.celery worker --loglevel=info &
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      - name: Run Tests
+        run: |
+          cd ./clone_sound_cloud
+          python manage.py test
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_DB: ${{ secrets.DJANGO_DB }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
+          SOCIAL_AUTH_SPOTIFY_KEY: ${{ secrets.SOCIAL_AUTH_SPOTIFY_KEY }}
+          SOCIAL_AUTH_SPOTIFY_SECRET: ${{ secrets.SOCIAL_AUTH_SPOTIFY_SECRET }}
+          SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: ${{ secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY }}
+          SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET: ${{ secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET }}
+          REDIS_CACHE_LOCATION: ${{ secrets.REDIS_CACHE_LOCATION }}
+          CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
       - name: Run Linting
         run: |
           cd ./clone_sound_cloud
