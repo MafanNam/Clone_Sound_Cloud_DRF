@@ -2,11 +2,11 @@ from djoser import email
 
 
 class ActivationEmail(email.ActivationEmail):
-    template_name = 'oauth/email/activation.html'
+    template_name = "oauth/email/activation.html"
 
 
 class ConfirmationEmail(email.ConfirmationEmail):
-    template_name = 'oauth/email/confirmation.html'
+    template_name = "oauth/email/confirmation.html"
 
 
 class PasswordResetEmail(email.PasswordResetEmail):

@@ -1,5 +1,6 @@
 from django.contrib.auth import (
-    get_user_model, update_session_auth_hash,
+    get_user_model,
+    update_session_auth_hash,
     authenticate,
 )
 from django.utils.timezone import now
@@ -27,28 +28,33 @@ User = get_user_model()
 
 
 def login_spotify(request):
-    return render(request, 'login_spotify.html')
+    return render(request, "login_spotify.html")
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
-
     def post(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
-        email_ = request.data['email']
-        password = request.data['password']
+        email_ = request.data["email"]
+        password = request.data["password"]
 
         if authenticate(email=email_, password=password) is None:
             user = get_object_or_404(User, email=email_)
 
             if not user.is_active:
-                return Response({'msg': 'user is not active.'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response(
+                    {"msg": "user is not active."}, status=status.HTTP_401_UNAUTHORIZED
+                )
 
             try:
                 User.objects.get(email=email_, is_active=True)
             except User.DoesNotExist:
-                return Response({'msg': 'user with this email does not exist.'},
-                                status=status.HTTP_404_NOT_FOUND)
-            return Response({'msg': 'user password wrong.'}, status=status.HTTP_403_FORBIDDEN)
+                return Response(
+                    {"msg": "user with this email does not exist."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+            return Response(
+                {"msg": "user password wrong."}, status=status.HTTP_403_FORBIDDEN
+            )
 
         try:
             serializer.is_valid(raise_exception=True)
@@ -59,20 +65,23 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class CustomUserViewSet(UserViewSet):
-
     def create(self, request, *args, **kwargs):
-        email_ = request.data['email']
-        password = request.data['password']
-        re_password = request.data['re_password']
+        email_ = request.data["email"]
+        password = request.data["password"]
+        re_password = request.data["re_password"]
 
         if email_ and password and re_password:
             if password != re_password:
-                return Response({'error': 'Passwords do not match.'},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "Passwords do not match."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             if User.objects.filter(email=email_).exists():
-                return Response({'error': 'User with this email already exists.'},
-                                status=status.HTTP_409_CONFLICT)
+                return Response(
+                    {"error": "User with this email already exists."},
+                    status=status.HTTP_409_CONFLICT,
+                )
 
         return super().create(request, *args, **kwargs)
 
@@ -84,16 +93,16 @@ class CustomUserViewSet(UserViewSet):
 
         email_to = [get_user_email(user)]
         context = {
-            'user_id': user.id,
-            'domain': self.request.get_host(),
-            'protocol': 'https' if self.request.is_secure() else 'http',
-            'site_name': self.request.get_host()
+            "user_id": user.id,
+            "domain": self.request.get_host(),
+            "protocol": "https" if self.request.is_secure() else "http",
+            "site_name": self.request.get_host(),
         }
 
         if settings.SEND_ACTIVATION_EMAIL:
-            send_email_celery_task.delay(context, email_to, 'ActivationEmail')
+            send_email_celery_task.delay(context, email_to, "ActivationEmail")
         elif settings.SEND_CONFIRMATION_EMAIL:
-            send_email_celery_task.delay(context, email_to, 'ConfirmationEmail')
+            send_email_celery_task.delay(context, email_to, "ConfirmationEmail")
 
     def perform_update(self, serializer, *args, **kwargs):
         serializer.save()
@@ -105,12 +114,12 @@ class CustomUserViewSet(UserViewSet):
         if settings.SEND_ACTIVATION_EMAIL and not user.is_active:
             email_to = [get_user_email(user)]
             context = {
-                'user_id': user.id,
-                'domain': self.request.get_host(),
-                'protocol': 'https' if self.request.is_secure() else 'http',
-                'site_name': self.request.get_host()
+                "user_id": user.id,
+                "domain": self.request.get_host(),
+                "protocol": "https" if self.request.is_secure() else "http",
+                "site_name": self.request.get_host(),
             }
-            send_email_celery_task.delay(context, email_to, 'ActivationEmail')
+            send_email_celery_task.delay(context, email_to, "ActivationEmail")
 
     @action(["post"], detail=False)
     def activation(self, request, *args, **kwargs):
@@ -127,12 +136,12 @@ class CustomUserViewSet(UserViewSet):
         if settings.SEND_CONFIRMATION_EMAIL:
             email_to = [get_user_email(user)]
             context = {
-                'user_id': user.id,
-                'domain': self.request.get_host(),
-                'protocol': 'https' if self.request.is_secure() else 'http',
-                'site_name': self.request.get_host()
+                "user_id": user.id,
+                "domain": self.request.get_host(),
+                "protocol": "https" if self.request.is_secure() else "http",
+                "site_name": self.request.get_host(),
             }
-            send_email_celery_task.delay(context, email_to, 'ConfirmationEmail')
+            send_email_celery_task.delay(context, email_to, "ConfirmationEmail")
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -148,12 +157,12 @@ class CustomUserViewSet(UserViewSet):
         if user:
             email_to = [get_user_email(user)]
             context = {
-                'user_id': user.id,
-                'domain': self.request.get_host(),
-                'protocol': 'https' if self.request.is_secure() else 'http',
-                'site_name': self.request.get_host()
+                "user_id": user.id,
+                "domain": self.request.get_host(),
+                "protocol": "https" if self.request.is_secure() else "http",
+                "site_name": self.request.get_host(),
             }
-            send_email_celery_task.delay(context, email_to, 'ActivationEmail')
+            send_email_celery_task.delay(context, email_to, "ActivationEmail")
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -168,12 +177,14 @@ class CustomUserViewSet(UserViewSet):
         if settings.PASSWORD_CHANGED_EMAIL_CONFIRMATION:
             email_to = [get_user_email(self.request.user)]
             context = {
-                'user_id': self.request.user.id,
-                'domain': self.request.get_host(),
-                'protocol': 'https' if self.request.is_secure() else 'http',
-                'site_name': self.request.get_host()
+                "user_id": self.request.user.id,
+                "domain": self.request.get_host(),
+                "protocol": "https" if self.request.is_secure() else "http",
+                "site_name": self.request.get_host(),
             }
-            send_email_celery_task.delay(context, email_to, 'PasswordChangedConfirmationEmail')
+            send_email_celery_task.delay(
+                context, email_to, "PasswordChangedConfirmationEmail"
+            )
 
         if settings.LOGOUT_ON_PASSWORD_CHANGE:
             utils.logout_user(self.request)
@@ -190,12 +201,12 @@ class CustomUserViewSet(UserViewSet):
         if user:
             email_to = [get_user_email(user)]
             context = {
-                'user_id': user.id,
-                'domain': self.request.get_host(),
-                'protocol': 'https' if self.request.is_secure() else 'http',
-                'site_name': self.request.get_host()
+                "user_id": user.id,
+                "domain": self.request.get_host(),
+                "protocol": "https" if self.request.is_secure() else "http",
+                "site_name": self.request.get_host(),
             }
-            send_email_celery_task.delay(context, email_to, 'PasswordResetEmail')
+            send_email_celery_task.delay(context, email_to, "PasswordResetEmail")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(["post"], detail=False)
@@ -211,12 +222,14 @@ class CustomUserViewSet(UserViewSet):
         if settings.PASSWORD_CHANGED_EMAIL_CONFIRMATION:
             email_to = [get_user_email(serializer.user)]
             context = {
-                'user_id': serializer.user.id,
-                'domain': self.request.get_host(),
-                'protocol': 'https' if self.request.is_secure() else 'http',
-                'site_name': self.request.get_host()
+                "user_id": serializer.user.id,
+                "domain": self.request.get_host(),
+                "protocol": "https" if self.request.is_secure() else "http",
+                "site_name": self.request.get_host(),
             }
-            send_email_celery_task.delay(context, email_to, 'PasswordChangedConfirmationEmail')
+            send_email_celery_task.delay(
+                context, email_to, "PasswordChangedConfirmationEmail"
+            )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(["post"], detail=False, url_path=f"set_{User.USERNAME_FIELD}")
@@ -233,12 +246,14 @@ class CustomUserViewSet(UserViewSet):
         if settings.USERNAME_CHANGED_EMAIL_CONFIRMATION:
             email_to = [get_user_email(user)]
             context = {
-                'user_id': user.id,
-                'domain': self.request.get_host(),
-                'protocol': 'https' if self.request.is_secure() else 'http',
-                'site_name': self.request.get_host()
+                "user_id": user.id,
+                "domain": self.request.get_host(),
+                "protocol": "https" if self.request.is_secure() else "http",
+                "site_name": self.request.get_host(),
             }
-            send_email_celery_task.delay(context, email_to, 'UsernameChangedConfirmationEmail')
+            send_email_celery_task.delay(
+                context, email_to, "UsernameChangedConfirmationEmail"
+            )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(["post"], detail=False, url_path=f"reset_{User.USERNAME_FIELD}")
@@ -252,12 +267,12 @@ class CustomUserViewSet(UserViewSet):
         if user:
             email_to = [get_user_email(user)]
             context = {
-                'user_id': user.id,
-                'domain': self.request.get_host(),
-                'protocol': 'https' if self.request.is_secure() else 'http',
-                'site_name': self.request.get_host()
+                "user_id": user.id,
+                "domain": self.request.get_host(),
+                "protocol": "https" if self.request.is_secure() else "http",
+                "site_name": self.request.get_host(),
             }
-            send_email_celery_task.delay(context, email_to, 'UsernameResetEmail')
+            send_email_celery_task.delay(context, email_to, "UsernameResetEmail")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(["post"], detail=False, url_path=f"reset_{User.USERNAME_FIELD}_confirm")
@@ -276,12 +291,14 @@ class CustomUserViewSet(UserViewSet):
         if settings.USERNAME_CHANGED_EMAIL_CONFIRMATION:
             email_to = [get_user_email(serializer.user)]
             context = {
-                'user_id': serializer.user.id,
-                'domain': self.request.get_host(),
-                'protocol': 'https' if self.request.is_secure() else 'http',
-                'site_name': self.request.get_host()
+                "user_id": serializer.user.id,
+                "domain": self.request.get_host(),
+                "protocol": "https" if self.request.is_secure() else "http",
+                "site_name": self.request.get_host(),
             }
-            send_email_celery_task.delay(context, email_to, 'UsernameChangedConfirmationEmail')
+            send_email_celery_task.delay(
+                context, email_to, "UsernameChangedConfirmationEmail"
+            )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -291,7 +308,7 @@ class UserProfileView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return UserProfile.objects.select_related('user').get(user=self.request.user)
+        return UserProfile.objects.select_related("user").get(user=self.request.user)
 
     def get_object(self):
         return self.get_queryset()
@@ -299,14 +316,18 @@ class UserProfileView(viewsets.ModelViewSet):
 
 class AuthorView(viewsets.ReadOnlyModelViewSet):
     """List authors"""
-    queryset = (User.objects.all()
-                .prefetch_related('social_links', 'user_profile', 'following', 'followers')
-                .select_related('user_profile'))
+
+    queryset = (
+        User.objects.all()
+        .prefetch_related("social_links", "user_profile", "following", "followers")
+        .select_related("user_profile")
+    )
     serializer_class = serializers.AuthorSerializer
 
 
 class SocialLinkView(viewsets.ModelViewSet):
     """CRUD social link user"""
+
     serializer_class = serializers.SocialLinkSerializer
     permission_classes = [IsAuthor]
 
@@ -319,6 +340,7 @@ class SocialLinkView(viewsets.ModelViewSet):
 
 class FollowAuthorView(views.APIView):
     """Follow author"""
+
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = None
 
@@ -326,27 +348,25 @@ class FollowAuthorView(views.APIView):
         author = get_object_or_404(User, id=pk)
 
         if request.user == author:
-            return Response({'message': 'You can not follow yourself'}, status=200)
+            return Response({"message": "You can not follow yourself"}, status=200)
 
         following_instance, created = UserFollowing.objects.get_or_create(
-            user=request.user,
-            following_user=author
+            user=request.user, following_user=author
         )
         if not created:
-            return Response({'message': 'Already following this user'}, status=200)
-        return Response({'message': 'Now following this user'}, status=201)
+            return Response({"message": "Already following this user"}, status=200)
+        return Response({"message": "Now following this user"}, status=201)
 
     def delete(self, request, pk):
         author = get_object_or_404(User, id=pk)
         try:
             following_instance = UserFollowing.objects.get(
-                user=request.user,
-                following_user=author
+                user=request.user, following_user=author
             )
             following_instance.delete()
-            return Response({'message': 'Unfollowed successfully'}, status=204)
+            return Response({"message": "Unfollowed successfully"}, status=204)
         except UserFollowing.DoesNotExist:
-            return Response({'error': 'You were not following this user'}, status=404)
+            return Response({"error": "You were not following this user"}, status=404)
 
 
 class SpamEmailOnceWeek(views.APIView):
@@ -358,13 +378,21 @@ class SpamEmailOnceWeek(views.APIView):
         if not user.is_spam_email:
             user.is_spam_email = True
             user.save()
-            return Response({'msg': 'You subscribed to the newsletter'}, status.HTTP_200_OK)
-        return Response({'msg': 'You are already subscribed to the newsletter'}, status.HTTP_200_OK)
+            return Response(
+                {"msg": "You subscribed to the newsletter"}, status.HTTP_200_OK
+            )
+        return Response(
+            {"msg": "You are already subscribed to the newsletter"}, status.HTTP_200_OK
+        )
 
     def delete(self, request):
         user = request.user
         if user.is_spam_email:
             user.is_spam_email = False
             user.save()
-            return Response({'msg': 'You unsubscribed from the newsletter'}, status.HTTP_200_OK)
-        return Response({'msg': 'You are not subscribed to the newsletter'}, status.HTTP_200_OK)
+            return Response(
+                {"msg": "You unsubscribed from the newsletter"}, status.HTTP_200_OK
+            )
+        return Response(
+            {"msg": "You are not subscribed to the newsletter"}, status.HTTP_200_OK
+        )

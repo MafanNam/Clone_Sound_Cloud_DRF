@@ -18,12 +18,14 @@ from base.services import delete_old_file
 
 class GenreView(generics.ListAPIView):
     """List genre"""
+
     queryset = models.Genre.objects.all()
     serializer_class = serializers.GenreSerializer
 
 
 class LicenseView(viewsets.ModelViewSet):
     """CRUD license user"""
+
     serializer_class = serializers.LicenseSerializer
     permission_classes = [IsAuthor]
 
@@ -36,6 +38,7 @@ class LicenseView(viewsets.ModelViewSet):
 
 class AlbumView(viewsets.ModelViewSet):
     """CRUD album user"""
+
     parser_classes = (parsers.MultiPartParser,)
     serializer_class = serializers.AlbumSerializer
     permission_classes = [IsAuthor]
@@ -53,27 +56,38 @@ class AlbumView(viewsets.ModelViewSet):
 
 class PublicAlbumView(generics.ListAPIView):
     """List public album for user"""
+
     serializer_class = serializers.AlbumSerializer
 
     def get_queryset(self):
-        return models.Album.objects.filter(user__id=self.kwargs.get('pk'),
-                                           private=False)
+        return models.Album.objects.filter(
+            user__id=self.kwargs.get("pk"), private=False
+        )
 
 
 class TrackView(MixedSerializer, viewsets.ModelViewSet):
     """CRUD tracks"""
+
     parser_classes = (parsers.MultiPartParser,)
     permission_classes = [IsAuthor]
     serializer_class = serializers.CreateAuthorTrackSerializer
     serializer_classes_by_action = {
-        'list': serializers.AuthorTrackSerializer,
+        "list": serializers.AuthorTrackSerializer,
     }
 
     def get_queryset(self):
-        return (models.Track.objects.filter(user=self.request.user)
-                .prefetch_related('user', 'user__following', 'user__followers',
-                                  'user__social_links', 'license', 'genre')
-                .select_related('license', 'user__user_profile', 'album'))
+        return (
+            models.Track.objects.filter(user=self.request.user)
+            .prefetch_related(
+                "user",
+                "user__following",
+                "user__followers",
+                "user__social_links",
+                "license",
+                "genre",
+            )
+            .select_related("license", "user__user_profile", "album")
+        )
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -86,18 +100,23 @@ class TrackView(MixedSerializer, viewsets.ModelViewSet):
 
 class PlayListView(MixedSerializer, viewsets.ModelViewSet):
     """CRUD playlist for user"""
+
     parser_classes = (parsers.MultiPartParser,)
     permission_classes = [IsAuthor]
     serializer_class = serializers.CreatePlayListSerializer
     serializer_classes_by_action = {
-        'list': serializers.PlayListSerializer,
+        "list": serializers.PlayListSerializer,
     }
 
     def get_queryset(self):
-        return (models.Playlist.objects.filter(user=self.request.user)
-                .prefetch_related('tracks__user', 'tracks__user__following',
-                                  'tracks__user__followers', 'tracks__user__social_links',
-                                  'tracks__license', 'tracks__genre'))
+        return models.Playlist.objects.filter(user=self.request.user).prefetch_related(
+            "tracks__user",
+            "tracks__user__following",
+            "tracks__user__followers",
+            "tracks__user__social_links",
+            "tracks__license",
+            "tracks__genre",
+        )
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -109,55 +128,96 @@ class PlayListView(MixedSerializer, viewsets.ModelViewSet):
 
 class TrackListView(generics.ListAPIView):
     """List all track"""
-    queryset = (models.Track.objects.filter(private=False).order_by('-id')
-                .prefetch_related('user', 'user__following', 'user__followers',
-                                  'user__social_links', 'license', 'genre')
-                .select_related('license', 'user__user_profile', 'album'))
+
+    queryset = (
+        models.Track.objects.filter(private=False)
+        .order_by("-id")
+        .prefetch_related(
+            "user",
+            "user__following",
+            "user__followers",
+            "user__social_links",
+            "license",
+            "genre",
+        )
+        .select_related("license", "user__user_profile", "album")
+    )
     serializer_class = serializers.AuthorTrackSerializer
     pagination_class = TrackAPIListPagination
     filter_backends = (SearchFilter, OrderingFilter, DjangoFilterBackend)
-    search_fields = ('title', 'user')
+    search_fields = ("title", "user")
     ordering_fields = (
-        'create_at', 'play_count', 'download', 'user',)
-    filterset_fields = ['title', 'user__user_profile__display_name',
-                        'album__name', 'genre__name', ]
+        "create_at",
+        "play_count",
+        "download",
+        "user",
+    )
+    filterset_fields = [
+        "title",
+        "user__user_profile__display_name",
+        "album__name",
+        "genre__name",
+    ]
 
 
 class TrackRecentlyPlayedView(generics.ListAPIView):
     """List all recently played track"""
+
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.AuthorTrackSerializer
 
     def get_queryset(self):
-        return (models.Track.objects.filter(
-            private=False, played_track__user=self.request.user).order_by(
-            '-played_track__played_at')[:10]
-                .prefetch_related('user', 'user__following', 'user__followers',
-                                  'user__social_links', 'license', 'genre')
-                .select_related('license', 'user__user_profile', 'album'))
+        return (
+            models.Track.objects.filter(
+                private=False, played_track__user=self.request.user
+            )
+            .order_by("-played_track__played_at")[:10]
+            .prefetch_related(
+                "user",
+                "user__following",
+                "user__followers",
+                "user__social_links",
+                "license",
+                "genre",
+            )
+            .select_related("license", "user__user_profile", "album")
+        )
 
 
 class AuthorTrackListView(generics.ListAPIView):
     """List all track user"""
+
     serializer_class = serializers.AuthorTrackSerializer
     pagination_class = TrackAPIListPagination
     filter_backends = (SearchFilter, OrderingFilter, DjangoFilterBackend)
-    search_fields = ('title', 'user')
+    search_fields = ("title", "user")
     ordering_fields = (
-        'create_at', 'play_count', 'download', 'user',)
-    filterset_fields = ['title', 'album__name', 'genre__name']
+        "create_at",
+        "play_count",
+        "download",
+        "user",
+    )
+    filterset_fields = ["title", "album__name", "genre__name"]
 
     def get_queryset(self):
-        return (models.Track.objects.filter(
-            user__id=self.kwargs.get('pk'),
-            private=False).order_by('-id')
-                .prefetch_related('user', 'license', 'user__following',
-                                  'user__followers', 'user__social_links', 'genre')
-                .select_related('user', 'user__user_profile'))
+        return (
+            models.Track.objects.filter(user__id=self.kwargs.get("pk"), private=False)
+            .order_by("-id")
+            .prefetch_related(
+                "user",
+                "license",
+                "user__following",
+                "user__followers",
+                "user__social_links",
+                "genre",
+            )
+            .select_related("user", "user__user_profile")
+        )
 
 
 class StreamingFileView(views.APIView):
     """Listen track"""
+
     serializer_class = None
 
     def set_play(self):
@@ -177,14 +237,16 @@ class StreamingFileView(views.APIView):
                 played_instance.played_at = timezone.now()
                 played_instance.save()
 
-            return FileResponse(open(self.track.file.path, 'rb'),
-                                filename=self.track.file.name)
+            return FileResponse(
+                open(self.track.file.path, "rb"), filename=self.track.file.name
+            )
         else:
             return Http404
 
 
 class StreamingFileAuthorView(views.APIView):
     """Listen track user"""
+
     serializer_class = None
     permission_classes = [IsAuthor]
 
@@ -196,14 +258,16 @@ class StreamingFileAuthorView(views.APIView):
         self.track = get_object_or_404(models.Track, id=pk)
         if os.path.exists(self.track.file.path):
             self.set_play()
-            return FileResponse(open(self.track.file.path, 'rb'),
-                                filename=self.track.file.name)
+            return FileResponse(
+                open(self.track.file.path, "rb"), filename=self.track.file.name
+            )
         else:
             return Http404
 
 
 class DownloadTrackView(views.APIView):
     """Download track"""
+
     serializer_class = None
 
     def set_download(self):
@@ -215,8 +279,9 @@ class DownloadTrackView(views.APIView):
         if os.path.exists(self.track.file.path):
             self.set_download()
             return FileResponse(
-                open(self.track.file.path, 'rb'),
-                filename=self.track.file.name, as_attachment=True
+                open(self.track.file.path, "rb"),
+                filename=self.track.file.name,
+                as_attachment=True,
             )
         else:
             return Http404
@@ -224,6 +289,7 @@ class DownloadTrackView(views.APIView):
 
 class CommentAuthorView(viewsets.ModelViewSet):
     """CRUD comment user"""
+
     serializer_class = serializers.CommentAuthorSerializer
     permission_classes = [IsAuthor]
 
@@ -236,17 +302,26 @@ class CommentAuthorView(viewsets.ModelViewSet):
 
 class CommentView(viewsets.ModelViewSet):
     """Comment for track"""
+
     serializer_class = serializers.CommentSerializer
 
     def get_queryset(self):
-        return (models.Comment.objects.filter(track_id=self.kwargs.get('pk'))
-                .prefetch_related('user', 'user__user_profile', 'user__following',
-                                  'user__followers', 'user__social_links')
-                .select_related('user'))
+        return (
+            models.Comment.objects.filter(track_id=self.kwargs.get("pk"))
+            .prefetch_related(
+                "user",
+                "user__user_profile",
+                "user__following",
+                "user__followers",
+                "user__social_links",
+            )
+            .select_related("user")
+        )
 
 
 class TrackLikeView(views.APIView):
     """Track like for authenticated user"""
+
     serializer_class = None
     permission_classes = [IsAuthenticated]
 
@@ -254,28 +329,35 @@ class TrackLikeView(views.APIView):
         """Set like for a track"""
         track = get_object_or_404(models.Track, id=pk, private=False)
         if track.user == request.user:
-            return Response({'message': 'You can not like own track.'},
-                            status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"message": "You can not like own track."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         if request.user.likes_of_tracks.filter(id=track.id).exists():
-            return Response({'message': 'You already like this track.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "You already like this track."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         track.user_of_likes.add(request.user.id)
         track.likes_count += 1
         track.save()
 
-        return Response({'message': 'You like track.'}, status=status.HTTP_201_CREATED)
+        return Response({"message": "You like track."}, status=status.HTTP_201_CREATED)
 
     def delete(self, request, pk):
         """Remove like from track"""
         track = get_object_or_404(models.Track, id=pk, private=False)
         if not request.user.likes_of_tracks.filter(id=track.id).exists():
             return Response(
-                {'message': 'You dont like this track for removing.'},
-                status=status.HTTP_403_FORBIDDEN)
+                {"message": "You dont like this track for removing."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         track.user_of_likes.remove(request.user.id)
         track.likes_count -= 1
         track.save()
 
-        return Response({'message': 'Remove like track.'}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "Remove like track."}, status=status.HTTP_204_NO_CONTENT
+        )
