@@ -94,6 +94,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DB_SQLITE = "sqlite"
 DB_POSTGRESQL = "postgresql"
+DB_MONGODB = "mongodb"
 
 DATABASES_ALL = {
     DB_SQLITE: {
@@ -108,6 +109,10 @@ DATABASES_ALL = {
         "HOST": config("POSTGRES_HOST", "localhost"),
         "PORT": config("POSTGRES_PORT", "5432"),
     },
+    DB_MONGODB: {
+        'ENGINE': 'djongo',
+        'NAME': 'clone-sound-cloud',
+    }
 }
 
 DATABASES = {"default": DATABASES_ALL[config("DJANGO_DB", "DB_SQLITE")]}
