@@ -51,6 +51,19 @@ services:
             - server
             - redis
             - worker
+    flower:
+        restart: unless-stopped
+        image: mher/flower
+        command: celery flower --persisten=True
+        env_file:
+            - .env.docker
+        ports:
+            - "8889:8889"
+        volumes:
+            - flower_data:/data
+        depends_on:
+            - worker
+            - celery-beat
     redis:
         restart: unless-stopped
         image: redis:7.0.5-alpine
@@ -83,3 +96,4 @@ volumes:
     media_volume: {}
     postgres_data: {}
     pgadmin-data: {}
+    flower_data: {}
