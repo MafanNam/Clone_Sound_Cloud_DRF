@@ -110,9 +110,9 @@ DATABASES_ALL = {
         "PORT": config("POSTGRES_PORT", "5432"),
     },
     DB_MONGODB: {
-        'ENGINE': 'djongo',
-        'NAME': 'clone-sound-cloud',
-    }
+        "ENGINE": "djongo",
+        "NAME": "clone-sound-cloud",
+    },
 }
 
 DATABASES = {"default": DATABASES_ALL[config("DJANGO_DB", "DB_SQLITE")]}
