@@ -58,6 +58,10 @@ jobs:
           SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET: ${{ secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET }}
           REDIS_CACHE_LOCATION: ${{ secrets.REDIS_CACHE_LOCATION }}
           CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
+      - name: Format with black
+        run: |
+          cd ./clone_sound_cloud
+          python -m black .
       - name: Run Linting
         run: |
           cd ./clone_sound_cloud

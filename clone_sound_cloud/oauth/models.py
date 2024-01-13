@@ -18,16 +18,16 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **kwargs):
-        kwargs.setdefault('is_active', True)
-        kwargs.setdefault('is_staff', True)
-        kwargs.setdefault('is_superuser', True)
+        kwargs.setdefault("is_active", True)
+        kwargs.setdefault("is_staff", True)
+        kwargs.setdefault("is_superuser", True)
 
-        if kwargs.get('is_active') is not True:
-            raise ValueError('Superuser must be active')
-        if kwargs.get('is_staff') is not True:
-            raise ValueError('Superuser must be staff')
-        if kwargs.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True')
+        if kwargs.get("is_active") is not True:
+            raise ValueError("Superuser must be active")
+        if kwargs.get("is_staff") is not True:
+            raise ValueError("Superuser must be staff")
+        if kwargs.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True")
 
         return self.create_user(email, password, **kwargs)
 
@@ -42,8 +42,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name"]
 
     def get_full_name(self):
         return f"{self.first_name}{self.last_name}"
@@ -57,18 +57,23 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class UserProfile(models.Model):
     """Model user on platform"""
+
     user = models.OneToOneField(
-        get_user_model(), on_delete=models.CASCADE,
-        related_name='user_profile')
+        get_user_model(), on_delete=models.CASCADE, related_name="user_profile"
+    )
     join_date = models.DateTimeField(auto_now_add=True)
     country = models.CharField(max_length=30, blank=True, null=True)
     city = models.CharField(max_length=30, blank=True, null=True)
     bio = models.TextField(max_length=2000, blank=True, null=True)
     display_name = models.CharField(max_length=30, blank=True, null=True)
     avatar = models.ImageField(
-        upload_to=get_path_upload_avatar, blank=True, null=True,
-        validators=[FileExtensionValidator(allowed_extensions=['jpg']),
-                    validate_size_image]
+        upload_to=get_path_upload_avatar,
+        blank=True,
+        null=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=["jpg"]),
+            validate_size_image,
+        ],
     )
 
     def __str__(self):
@@ -77,20 +82,31 @@ class UserProfile(models.Model):
 
 class UserFollowing(models.Model):
     """Model Follower"""
+
     user = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, null=True, blank=True,
-        related_name='following')
+        get_user_model(),
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="following",
+    )
     following_user = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, null=True, blank=True,
-        related_name='followers')
+        get_user_model(),
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="followers",
+    )
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['user', 'following_user'], name='unique_followers')
+            models.UniqueConstraint(
+                fields=["user", "following_user"], name="unique_followers"
+            )
         ]
 
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.user} follows {self.following_user}"
@@ -98,8 +114,10 @@ class UserFollowing(models.Model):
 
 class SocialLink(models.Model):
     """Model link in social user"""
+
     user = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, related_name='social_links')
+        get_user_model(), on_delete=models.CASCADE, related_name="social_links"
+    )
     link = models.URLField(max_length=100)
 
     def __str__(self):

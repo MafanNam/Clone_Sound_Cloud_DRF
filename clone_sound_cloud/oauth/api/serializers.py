@@ -10,25 +10,36 @@ from django.contrib.auth import get_user_model
 class CustomUserCreateSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = get_user_model()
-        fields = ('id', 'email', 'first_name', 'last_name', 'password')
+        fields = ("id", "email", "first_name", "last_name", "password")
 
 
 class SocialLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = SocialLink
-        fields = ('id', 'link',)
+        fields = (
+            "id",
+            "link",
+        )
 
 
 class FollowingSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserFollowing
-        fields = ('id', 'following_user', 'created_at',)
+        fields = (
+            "id",
+            "following_user",
+            "created_at",
+        )
 
 
 class FollowersSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserFollowing
-        fields = ('id', 'user', 'created_at',)
+        fields = (
+            "id",
+            "user",
+            "created_at",
+        )
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -37,9 +48,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('id', 'avatar', 'country',
-                  'city', 'bio', 'display_name',
-                  'following', 'followers',)
+        fields = (
+            "id",
+            "avatar",
+            "country",
+            "city",
+            "bio",
+            "display_name",
+            "following",
+            "followers",
+        )
 
     @extend_schema_field(FollowingSerializer)
     def get_following(self, obj):
@@ -56,5 +74,10 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'first_name', 'last_name',
-                  'user_profile', 'social_links',)
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "user_profile",
+            "social_links",
+        )
