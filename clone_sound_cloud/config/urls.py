@@ -4,6 +4,7 @@ from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
+    path(r'jet/', include('jet.urls', 'jet')),  # New Admin Panel for prod
     path("admin/", admin.site.urls),
     path("api/", include("oauth.api.urls")),
     path("api/audio/", include("audio_library.api.urls")),

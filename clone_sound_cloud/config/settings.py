@@ -31,6 +31,7 @@ AUTH_USER_MODEL = "oauth.User"
 # Application definition
 
 INSTALLED_APPS = [
+    "jet",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
